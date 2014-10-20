@@ -18,3 +18,17 @@ Functions
 
 Global functions are named like ffuzzy_SOMETHING.
 You can use ffuzzy_compare function just like fuzzy_compare.
+
+You can also hold ssdeep digest after parsing.
+Use ffuzzy_read_digest to parse digest and use ffuzzy_compare_digest
+to compare against another digest (after parsing).
+
+
+Performance
+------------
+
+Version 1.1 achieved expected performance gain.
+libffuzzy is now faster than libfuzzy in most cases.
+
+In the large clustering job (about 100k hashes), libffuzzy was
+about 50% faster than libfuzzy.
