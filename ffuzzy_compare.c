@@ -85,7 +85,7 @@ int ffuzzy_score_strings(
 	// compute the score by scaling edit distance by
 	// the lengths of the two strings, and then
 	// scale it to [0,100] scale (0 is the worst match)
-	int score = edit_distn(s1, s1len, s2, s2len) * SPAMSUM_LENGTH / ((int)s1len + (int)s2len);
+	int score = edit_distn_norm(s1, s1len, s2, s2len) * SPAMSUM_LENGTH / ((int)s1len + (int)s2len);
 	score = 100 - (100 * score) / SPAMSUM_LENGTH;
 	// when the blocksize is small we don't want to exaggerate the match size
 	unsigned long block_scale = block_size / MIN_BLOCKSIZE;

@@ -78,4 +78,19 @@ static inline int edit_distn(const char *s1, size_t s1len, const char *s2, size_
 	return t1[s2len];
 }
 
+static inline int edit_distn_norm(const char *s1, size_t s1len, const char *s2, size_t s2len)
+{
+#if 1
+	// make sure that s1len <= s2len
+	// (help predicting behavior on modern processors)
+	if (s1len <= s2len)
+		return edit_distn(s1, s1len, s2, s2len);
+	else
+		return edit_distn(s2, s2len, s1, s1len);
+#else
+	// it's not necessary to actually normalize string lengths.
+	return edit_distn(s1, s1len, s2, s2len);
+#endif
+}
+
 #endif
