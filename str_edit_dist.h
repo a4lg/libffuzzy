@@ -39,6 +39,28 @@ static inline int edit_distn(const char *s1, size_t s1len, const char *s2, size_
 	int t[2][EDIT_DISTN_MAXLEN+1];
 	int *t1 = t[0], *t2 = t[1], *t3;
 	size_t i1, i2;
+#if 1
+	// assume that s1len (length of s1) is greater than zero.
+	t1[0] = 1;
+	for (i2 = 0; i2 < s2len; i2++)
+	{
+		int cost_d = t1[i2] + 1;
+		int cost_r = i2 + (s1[0] == s2[i2] ? 0 : 2);
+		t1[i2+1] = MIN(cost_d, cost_r);
+	}
+	for (i1 = 1; i1 < s1len; i1++)
+	{
+		t2[0] = i1 + 1;
+		for (i2 = 0; i2 < s2len; i2++)
+		{
+			int cost_a = t1[i2+1] + 1;
+			int cost_d = t2[i2]   + 1;
+			int cost_r = t1[i2]   + (s1[i1] == s2[i2] ? 0 : 2);
+			t2[i2+1] = MIN(MIN(cost_a, cost_d), cost_r);
+		}
+		t3 = t1; t1 = t2; t2 = t3;
+	}
+#else
 	for (i2 = 0; i2 <= s2len; i2++) t1[i2] = i2;
 	for (i1 = 0; i1 < s1len; i1++)
 	{
@@ -52,6 +74,7 @@ static inline int edit_distn(const char *s1, size_t s1len, const char *s2, size_
 		}
 		t3 = t1; t1 = t2; t2 = t3;
 	}
+#endif
 	return t1[s2len];
 }
 
