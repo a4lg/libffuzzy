@@ -35,11 +35,17 @@
 #ifndef FFUZZY_FFUZZY_H
 #define FFUZZY_FFUZZY_H
 
+#ifndef __cplusplus
 #include <stdbool.h>
+#endif
 #include <stddef.h>
 
 #define SPAMSUM_LENGTH 64
 #define MIN_BLOCKSIZE 3
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct ffuzzy_digest_
 {
@@ -61,5 +67,9 @@ int ffuzzy_score_strings(
 	unsigned long block_size
 );
 int ffuzzy_compare(const char *str1, const char *str2);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
