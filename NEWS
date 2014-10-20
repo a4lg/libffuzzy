@@ -2,12 +2,20 @@ libffuzzy : Fast ssdeep comparison library
 ===========================================
 
 
+Version 1.1.1 - 2014-10-20
+---------------------------
+
+*	Optimized edit distance code
+*	Fix changelog on version 1.1
+
+
 Version 1.1 - 2014-10-20
 -------------------------
 
 *	Added ffuzzy_digest structure
 	(which holds ssdeep digest after parsing)
 *	Optimized digest reader and edit distance code
+*	Improve compatibility with ssdeep
 
 
 Version 1.0 - 2014-10-20
