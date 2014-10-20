@@ -35,6 +35,8 @@
 #ifndef FFUZZY_FFUZZY_H
 #define FFUZZY_FFUZZY_H
 
+#include <stddef.h>
+
 #define SPAMSUM_LENGTH 64
 #define MIN_BLOCKSIZE 3
 
