@@ -35,10 +35,25 @@
 #ifndef FFUZZY_FFUZZY_H
 #define FFUZZY_FFUZZY_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #define SPAMSUM_LENGTH 64
 #define MIN_BLOCKSIZE 3
+
+typedef struct ffuzzy_digest_
+{
+	size_t size1, size2;
+	unsigned long block_size;
+	char digest[SPAMSUM_LENGTH * 2];
+} ffuzzy_digest;
+
+int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size);
+int ffuzzy_score_cap_1(int minslen, unsigned long block_size);
+
+bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s);
+int ffuzzy_compare_digest(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
 
 int ffuzzy_score_strings(
 	const char *s1, size_t s1len,

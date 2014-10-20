@@ -9,7 +9,6 @@ EXTRA_DIST = \
 	COPYING COPYING.GPLv2 COPYING.Boost \
 	str_common_substr.h \
 	str_edit_dist.h \
-	str_elim_seq.h \
 	str_hash_rolling.h \
 	util.h \
 	.gitignore .gitattributes ext/.gitignore m4/.gitignore

@@ -32,15 +32,18 @@
 	Copyright (C) 2014 Tsukasa OI <li@livegrid.org>
 
 */
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
 
 #include "ffuzzy.h"
 
 #include "str_common_substr.h"
 #include "str_edit_dist.h"
-#include "str_elim_seq.h"
 #include "util.h"
 
 #if SPAMSUM_LENGTH > EDIT_DISTN_MAXLEN
@@ -49,6 +52,21 @@
 #if SPAMSUM_LENGTH > HAS_COMMON_SUBSTR_MAXLEN
 #error HAS_COMMON_SUBSTR_MAXLEN must be large enough to contain SPAMSUM_LENGTH string
 #endif
+
+
+inline int ffuzzy_score_cap_1(int minslen, unsigned long block_size)
+{
+	unsigned long block_scale = block_size / MIN_BLOCKSIZE;
+	if (block_scale >= 100)
+		return 100;
+	return (int)block_scale * minslen;
+}
+
+
+inline int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size)
+{
+	return ffuzzy_score_cap_1(MIN(s1len, s2len), block_size);
+}
 
 
 int ffuzzy_score_strings(
@@ -81,94 +99,152 @@ int ffuzzy_score_strings(
 }
 
 
-int ffuzzy_compare(const char *str1, const char *str2)
+static inline bool ffuzzy_read_digest_blocksize(ffuzzy_digest *digest, char** srem, const char *s)
 {
-	char s1a[SPAMSUM_LENGTH], s1b[SPAMSUM_LENGTH], s2a[SPAMSUM_LENGTH], s2b[SPAMSUM_LENGTH];
-	size_t s1la, s1lb, s2la, s2lb;
-	unsigned long block_size1, block_size2;
+	errno = 0;
+	digest->block_size = strtoul(s, srem, 10);
+	// arithmetic overflow occurred
+	if (digest->block_size == ULONG_MAX && errno == ERANGE)
+		return false;
+	// the string does not start with numbers
+	if (*srem == s)
+		return false;
+	return true;
+}
 
-	if (!str1 || !str2)
-		return -1;
-	// scan blocksizes
-	if (
-		sscanf(str1, "%lu:", &block_size1) != 1 ||
-		sscanf(str2, "%lu:", &block_size2) != 1
-	)
+
+static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, const char *s)
+{
+	// ':' must follow after the number (which is block_size)
+	if (*s != ':')
+		return false;
+	// read first block of ssdeep hash
+	// (eliminating sequences of 4 or more identical characters)
+	digest->size2 = 0;
+	char *o = digest->digest;
+	while (true)
 	{
-		return -1;
+		char c = *++s;
+		if (!c)
+			return false;
+		if (c == ':')
+			break;
+		if (digest->size2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
+		{
+			if (digest->size2 == SPAMSUM_LENGTH)
+				return false;
+			digest->size2++;
+			*o++ = c;
+		}
 	}
-	// don't compare if the blocksizes are not close.
-	if (
-		block_size1 != block_size2     &&
-		block_size1 != block_size2 * 2 &&
-		block_size2 != block_size1 * 2
-	)
+	// read second block of ssdeep hash
+	// (eliminating sequences of 4 or more identical characters)
+	digest->size1 = digest->size2;
+	while (true)
 	{
-		return 0;
+		char c = *++s;
+		if (!c || c == ',')
+			break;
+		if (digest->size2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
+		{
+			if (digest->size2 == digest->size1 + SPAMSUM_LENGTH)
+				return false;
+			digest->size2++;
+			*o++ = c;
+		}
 	}
-	// read chunks and format
-	{
-		char *p1a = strchr(str1, ':');
-		char *p2a = strchr(str2, ':');
-		if (!p1a || !p2a)
-			return -1;
-		char *p1b = strchr(++p1a, ':');
-		char *p2b = strchr(++p2a, ':');
-		if (!p1b || !p2b)
-			return -1;
-		char *p1c = strchr(++p1b, ',');
-		char *p2c = strchr(++p2b, ',');
-		if (!p1c) p1c = strchr(p1b, '\0');
-		if (!p2c) p2c = strchr(p2b, '\0');
-		// we can't compare such long hashes (original version of ssdeep may)
-		// INCOMPATIBILITY:
-		// this function will not accept some long hashes that ssdeep may.
-		// note that such hashes will not be generated from ssdeep.
-		if ((p1b - p1a - 1) > SPAMSUM_LENGTH || (p2b - p2a - 1) > SPAMSUM_LENGTH)
-			return -1;
-		if ((p1c - p1b) > SPAMSUM_LENGTH || (p2c - p2b) > SPAMSUM_LENGTH)
-			return -1;
-		// remove sequences of the same character (longer than 3)
-		s1la = eliminate_sequences(s1a, p1a, p1b - p1a - 1);
-		s2la = eliminate_sequences(s2a, p2a, p2b - p2a - 1);
-		s1lb = eliminate_sequences(s1b, p1b, p1c - p1b);
-		s2lb = eliminate_sequences(s2b, p2b, p2c - p2b);
-	}
+	digest->size2 -= digest->size1;
+	return true;
+}
+
+
+inline bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s)
+{
+	char *p;
+	if (!ffuzzy_read_digest_blocksize(digest, &p, s))
+		return false;
+	return ffuzzy_read_digest_after_blocksize(digest, p);
+}
+
+
+// skip block size checks and compare two digest
+inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
+{
 	// special case if two signatures are identical
 	if (
-		block_size1 == block_size2 &&
-		s1la == s2la && s1lb == s2lb &&
-		!memcmp(s1a, s2a, s1la) &&
-		!memcmp(s1b, s2b, s1lb)
+		d1->block_size == d2->block_size &&
+		d1->size1 == d2->size1 &&
+		d1->size2 == d2->size2 &&
+		!memcmp(d1->digest, d2->digest, d1->size1 + d1->size2)
 	)
 	{
-		// cap maximum score
-		unsigned long block_scale2 = block_size1 * 2 / MIN_BLOCKSIZE;
-		if (s1lb >= ROLLING_WINDOW && block_scale2 >= 100)
-			return 100;
-		unsigned long block_scale1 = block_size1 / MIN_BLOCKSIZE;
-		if (s1la >= ROLLING_WINDOW && block_scale1 >= 100)
-			return 100;
-		int score_cap1 = (int)(block_scale1 * s1la);
-		if (s1la < ROLLING_WINDOW)
-			score_cap1 = 0;
-		int score_cap2 = (int)(block_scale2 * s1lb);
-		if (s1lb < ROLLING_WINDOW)
-			score_cap2 = 0;
-		int score_cap = MAX(score_cap1, score_cap2);
+		// cap scores (same as ffuzzy_score_strings)
+		int score_cap;
+		if (d1->size2 >= ROLLING_WINDOW)
+		{
+			score_cap = ffuzzy_score_cap_1((int)d1->size2, d1->block_size * 2);
+			if (score_cap >= 100)
+				return 100;
+		}
+		else
+			score_cap = 0;
+		if (d1->size1 >= ROLLING_WINDOW)
+		{
+			int tmp = ffuzzy_score_cap_1((int)d1->size1, d1->block_size);
+			score_cap = MAX(score_cap, tmp);
+		}
 		return MIN(100, score_cap);
 	}
 	// each signature has a string for two block sizes. We now
 	// choose how to combine the two block sizes. We checked above
 	// that they have at least one block size in common
-	if (block_size1 == block_size2)
+	if (d1->block_size == d2->block_size)
 	{
-		int score1 = ffuzzy_score_strings(s1a, s1la, s2a, s2la, block_size1);
-		int score2 = ffuzzy_score_strings(s1b, s1lb, s2b, s2lb, block_size1 * 2);
+		int score1 = ffuzzy_score_strings(d1->digest, d1->size1, d2->digest, d2->size1, d1->block_size);
+		int score2 = ffuzzy_score_strings(d1->digest+d1->size1, d1->size2, d2->digest+d2->size1, d2->size2, d1->block_size * 2);
 		return MAX(score1, score2);
 	}
-	else if (block_size1 == block_size2 * 2)
-		return ffuzzy_score_strings(s1a, s1la, s2b, s2lb, block_size1);
+	else if (d1->block_size == d2->block_size * 2)
+		return ffuzzy_score_strings(d1->digest, d1->size1, d2->digest + d2->size1, d2->size2, d1->block_size);
 	else
-		return ffuzzy_score_strings(s1b, s1lb, s2a, s2la, block_size2);
+		return ffuzzy_score_strings(d1->digest + d1->size1, d1->size2, d2->digest, d2->size1, d2->block_size);
+}
+
+
+inline int ffuzzy_compare_digest(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
+{
+	// don't compare if the blocksizes are not close.
+	if (
+		d1->block_size != d2->block_size     &&
+		d2->block_size != d1->block_size * 2 &&
+		d1->block_size != d2->block_size * 2
+	)
+	{
+		return 0;
+	}
+	return ffuzzy_compare_digest_near(d1, d2);
+}
+
+
+int ffuzzy_compare(const char *str1, const char *str2)
+{
+	ffuzzy_digest d1, d2;
+	char *p1, *p2;
+	// read blocksize part first
+	if (!ffuzzy_read_digest_blocksize(&d1, &p1, str1) || !ffuzzy_read_digest_blocksize(&d2, &p2, str2))
+		return -1;
+	// don't compare if the blocksizes are not close.
+	if (
+		d1.block_size != d2.block_size     &&
+		d2.block_size != d1.block_size * 2 &&
+		d1.block_size != d2.block_size * 2
+	)
+	{
+		return 0;
+	}
+	// read remaining parts
+	if (!ffuzzy_read_digest_after_blocksize(&d1, p1) || !ffuzzy_read_digest_after_blocksize(&d2, p2))
+		return -1;
+	// then compare without blocksize checks
+	return ffuzzy_compare_digest_near(&d1, &d2);
 }

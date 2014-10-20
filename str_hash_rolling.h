@@ -47,12 +47,12 @@ typedef struct roll_state_
 	unsigned char window[ROLLING_WINDOW];
 } roll_state;
 
-static void roll_init(roll_state *self)
+static inline void roll_init(roll_state *self)
 {
 	memset(self, 0, sizeof(roll_state));
 }
 
-static void roll_hash(roll_state *self, unsigned char c)
+static inline void roll_hash(roll_state *self, unsigned char c)
 {
 	self->h2 = self->h2 - self->h1 + ROLLING_WINDOW * (uint_least32_t)c;
 	self->h1 = self->h1 + (uint_least32_t)c - (uint_least32_t)self->window[self->n];
@@ -64,7 +64,7 @@ static void roll_hash(roll_state *self, unsigned char c)
 		self->n = 0;
 }
 
-static uint_least32_t roll_sum(const roll_state *self)
+static inline uint_least32_t roll_sum(const roll_state *self)
 {
 	return (self->h1 + self->h2 + self->h3) & UINT32_C(0xffffffff);
 }

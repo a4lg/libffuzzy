@@ -62,7 +62,7 @@
 	"ab" and "ab":
 		false (they are identical but don't have common substring of length 3)
 */
-static bool has_common_substring(
+static inline bool has_common_substring(
 	const char *s1, size_t s1len,
 	const char *s2, size_t s2len
 )

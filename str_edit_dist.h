@@ -34,7 +34,7 @@
 	"kitten" and "sitting" -> 5
 		(remove 'k', insert 's', remove 'e', insert 'i' and insert 'g' to the tail)
 */
-static int edit_distn(const char *s1, size_t s1len, const char *s2, size_t s2len)
+static inline int edit_distn(const char *s1, size_t s1len, const char *s2, size_t s2len)
 {
 	int t[2][EDIT_DISTN_MAXLEN+1];
 	int *t1 = t[0], *t2 = t[1], *t3;
