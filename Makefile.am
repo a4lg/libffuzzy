@@ -1,0 +1,15 @@
+ACLOCAL_AMFLAGS = -I m4
+lib_LTLIBRARIES = libffuzzy.la
+libffuzzy_la_LDFLAGS = -no-undefined -version-info 1:0:0
+libffuzzy_la_SOURCES = \
+	ffuzzy_compare.c
+include_HEADERS = ffuzzy.h
+EXTRA_DIST = \
+	README NEWS \
+	COPYING COPYING.GPLv2 COPYING.Boost \
+	str_common_substr.h \
+	str_edit_dist.h \
+	str_elim_seq.h \
+	str_hash_rolling.h \
+	util.h \
+	.gitignore .gitattributes ext/.gitignore m4/.gitignore
