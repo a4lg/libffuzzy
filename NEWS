@@ -1,0 +1,8 @@
+libffuzzy : Fast ssdeep comparison library
+===========================================
+
+
+Version 1.0 - 2014-10-20
+-------------------------
+
+*	The initial release (compatible with ssdeep 2.10 [not 2.11])

@@ -1,0 +1,20 @@
+libffuzzy : Fast ssdeep comparison library
+===========================================
+
+libffuzzy is fuzzy hashing comparison library compatible with
+ssdeep (<http://ssdeep.sourceforge.net/>) version 2.10.
+
+This library is designed to be fast and thread-safe. It does not even
+allocate memory dynamically during the process (which may increase
+performance on parallel computation).
+
+The another purpose to write this library is to find implementation
+issues in ssdeep. During this re-implementation, the author found
+several issues which may affect robustness and portability in ssdeep.
+
+
+Functions
+----------
+
+Global functions are named like ffuzzy_SOMETHING.
+You can use ffuzzy_compare function just like fuzzy_compare.
