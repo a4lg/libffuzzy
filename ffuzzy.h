@@ -68,6 +68,10 @@ int ffuzzy_score_strings(
 );
 int ffuzzy_compare(const char *str1, const char *str2);
 
+bool ffuzzy_blocksize_is_valid(unsigned long block_size);
+bool ffuzzy_blocksize_is_natural(unsigned long block_size);
+bool ffuzzy_blocksize_is_near(unsigned long block_size1, unsigned long block_size2);
+
 #ifdef __cplusplus
 }
 #endif
