@@ -48,17 +48,17 @@
 #include "str_edit_dist.h"
 #include "util.h"
 
-#if SPAMSUM_LENGTH > EDIT_DISTN_MAXLEN
-#error EDIT_DISTN_MAXLEN must be large enough to contain SPAMSUM_LENGTH string
+#if FFUZZY_SPAMSUM_LENGTH > EDIT_DISTN_MAXLEN
+#error EDIT_DISTN_MAXLEN must be large enough to contain FFUZZY_SPAMSUM_LENGTH string
 #endif
-#if SPAMSUM_LENGTH > HAS_COMMON_SUBSTR_MAXLEN
-#error HAS_COMMON_SUBSTR_MAXLEN must be large enough to contain SPAMSUM_LENGTH string
+#if FFUZZY_SPAMSUM_LENGTH > HAS_COMMON_SUBSTR_MAXLEN
+#error HAS_COMMON_SUBSTR_MAXLEN must be large enough to contain FFUZZY_SPAMSUM_LENGTH string
 #endif
 
 
 inline int ffuzzy_score_cap_1(int minslen, unsigned long block_size)
 {
-	unsigned long block_scale = block_size / MIN_BLOCKSIZE;
+	unsigned long block_scale = block_size / FFUZZY_MIN_BLOCKSIZE;
 	if (block_scale >= 100)
 		return 100;
 	return (int)block_scale * minslen;
@@ -78,7 +78,7 @@ int ffuzzy_score_strings(
 )
 {
 	// cannot score long signatures
-	if (s1len > SPAMSUM_LENGTH || s2len > SPAMSUM_LENGTH)
+	if (s1len > FFUZZY_SPAMSUM_LENGTH || s2len > FFUZZY_SPAMSUM_LENGTH)
 		return 0;
 	// the two strings must have a common substring
 	// of length ROLLING_WINDOW to be candidates
@@ -87,10 +87,10 @@ int ffuzzy_score_strings(
 	// compute the score by scaling edit distance by
 	// the lengths of the two strings, and then
 	// scale it to [0,100] scale (0 is the worst match)
-	int score = edit_distn_norm(s1, s1len, s2, s2len) * SPAMSUM_LENGTH / ((int)s1len + (int)s2len);
-	score = 100 - (100 * score) / SPAMSUM_LENGTH;
+	int score = edit_distn_norm(s1, s1len, s2, s2len) * FFUZZY_SPAMSUM_LENGTH / ((int)s1len + (int)s2len);
+	score = 100 - (100 * score) / FFUZZY_SPAMSUM_LENGTH;
 	// when the blocksize is small we don't want to exaggerate the match size
-	unsigned long block_scale = block_size / MIN_BLOCKSIZE;
+	unsigned long block_scale = block_size / FFUZZY_MIN_BLOCKSIZE;
 	if (block_scale >= 100)
 	{
 		// don't cap first (to avoid arithmetic overflow)
@@ -133,7 +133,7 @@ static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, con
 			break;
 		if (digest->size2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
 		{
-			if (digest->size2 == SPAMSUM_LENGTH)
+			if (digest->size2 == FFUZZY_SPAMSUM_LENGTH)
 				return false;
 			digest->size2++;
 			*o++ = c;
@@ -149,7 +149,7 @@ static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, con
 			break;
 		if (digest->size2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
 		{
-			if (digest->size2 == digest->size1 + SPAMSUM_LENGTH)
+			if (digest->size2 == digest->size1 + FFUZZY_SPAMSUM_LENGTH)
 				return false;
 			digest->size2++;
 			*o++ = c;

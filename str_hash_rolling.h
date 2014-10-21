@@ -42,7 +42,7 @@
 
 #define ROLLING_WINDOW 7
 
-typedef struct roll_state_
+typedef struct
 {
 	uint_least32_t h1, h2, h3;
 	uint_least32_t n;

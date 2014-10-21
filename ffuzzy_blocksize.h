@@ -40,13 +40,13 @@ static inline bool ffuzzy_blocksize_is_valid_(unsigned long block_size)
 
 static inline bool ffuzzy_blocksize_is_natural_(unsigned long block_size)
 {
-	if (block_size < MIN_BLOCKSIZE)
+	if (block_size < FFUZZY_MIN_BLOCKSIZE)
 		return false;
 	if (!ffuzzy_blocksize_is_valid(block_size))
 		return false;
-	while (block_size != MIN_BLOCKSIZE && !(block_size & 1ul))
+	while (block_size != FFUZZY_MIN_BLOCKSIZE && !(block_size & 1ul))
 		block_size >>= 1;
-	return block_size == MIN_BLOCKSIZE;
+	return block_size == FFUZZY_MIN_BLOCKSIZE;
 }
 
 #endif

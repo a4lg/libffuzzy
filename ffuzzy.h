@@ -40,18 +40,18 @@
 #endif
 #include <stddef.h>
 
-#define SPAMSUM_LENGTH 64
-#define MIN_BLOCKSIZE 3
+#define FFUZZY_SPAMSUM_LENGTH 64
+#define FFUZZY_MIN_BLOCKSIZE 3
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct ffuzzy_digest_
+typedef struct
 {
 	size_t size1, size2;
 	unsigned long block_size;
-	char digest[SPAMSUM_LENGTH * 2];
+	char digest[FFUZZY_SPAMSUM_LENGTH * 2];
 } ffuzzy_digest;
 
 int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size);

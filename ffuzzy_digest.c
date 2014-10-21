@@ -132,7 +132,7 @@ bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 	// buf must be big enough to contain two colons and two buffers.
 	if ((buflen - 3) < (digest->size1 + digest->size2))
 		return false;
-	// write block size
+	// write block size if possible
 	{
 		size_t bslen = (buflen - 2) - (digest->size1 + digest->size2);
 		int bsret = snprintf(buf, bslen, "%lu", digest->block_size);
