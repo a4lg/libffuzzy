@@ -2,8 +2,8 @@
 
 	libffuzzy : Fast ssdeep comparison library
 
-	ffuzzy_blocksize.c
-	Block size utility for fuzzy hashes
+	ffuzzy_blocksize.h
+	Block size utility for fuzzy hashes (internal)
 
 
 	Copyright (C) 2014 Tsukasa OI <li@livegrid.org>
@@ -23,28 +23,30 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef FFUZZY_FFUZZY_BLOCKSIZE_H
+#define FFUZZY_FFUZZY_BLOCKSIZE_H
+
 #include "ffuzzy_config.h"
 
 #include <stdbool.h>
 #include <limits.h>
 
 #include "ffuzzy.h"
-#include "ffuzzy_blocksize.h"
 
-bool ffuzzy_blocksize_is_valid(unsigned long block_size)
+static inline bool ffuzzy_blocksize_is_valid_(unsigned long block_size)
 {
-	return ffuzzy_blocksize_is_valid_(block_size);
+	return block_size <= (ULONG_MAX / 2);
 }
 
-bool ffuzzy_blocksize_is_natural(unsigned long block_size)
+static inline bool ffuzzy_blocksize_is_natural_(unsigned long block_size)
 {
-	return ffuzzy_blocksize_is_natural_(block_size);
+	if (block_size < MIN_BLOCKSIZE)
+		return false;
+	if (!ffuzzy_blocksize_is_valid(block_size))
+		return false;
+	while (block_size != MIN_BLOCKSIZE && !(block_size & 1ul))
+		block_size >>= 1;
+	return block_size == MIN_BLOCKSIZE;
 }
 
-bool ffuzzy_blocksize_is_near(unsigned long block_size1, unsigned long block_size2)
-{
-	return
-		block_size1     == block_size2 ||
-		block_size1 * 2 == block_size2 ||
-		block_size2 * 2 == block_size1;
-}
+#endif

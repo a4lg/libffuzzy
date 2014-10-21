@@ -60,6 +60,7 @@ int ffuzzy_score_cap_1(int minslen, unsigned long block_size);
 bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s);
 int ffuzzy_compare_digest(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
 int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest);
 
 int ffuzzy_score_strings(
 	const char *s1, size_t s1len,
@@ -71,6 +72,13 @@ int ffuzzy_compare(const char *str1, const char *str2);
 bool ffuzzy_blocksize_is_valid(unsigned long block_size);
 bool ffuzzy_blocksize_is_natural(unsigned long block_size);
 bool ffuzzy_blocksize_is_near(unsigned long block_size1, unsigned long block_size2);
+
+bool ffuzzy_digest_is_valid_lengths(const ffuzzy_digest *digest);
+bool ffuzzy_digest_is_valid_buffer(const ffuzzy_digest *digest);
+bool ffuzzy_digest_is_natural_buffer(const ffuzzy_digest *digest);
+bool ffuzzy_digest_is_valid(const ffuzzy_digest *digest);
+bool ffuzzy_digest_is_natural(const ffuzzy_digest *digest);
+int ffuzzy_digestcmp(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
 
 #ifdef __cplusplus
 }
