@@ -18,7 +18,6 @@
 aclocal.m4
 autoscan.log
 autom4te.cache
-config.h
 config.log
 config.status
 configure
@@ -26,6 +25,7 @@ configure.scan
 confdefs*
 conftest*
 conf[0-9]*
+ffuzzy_config.h
 libtool
 Makefile
 stamp-h1

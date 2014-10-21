@@ -35,6 +35,8 @@
 #ifndef FFUZZY_STR_HASH_ROLLING_H
 #define FFUZZY_STR_HASH_ROLLING_H
 
+#include "ffuzzy_config.h"
+
 #include <stdint.h>
 #include <string.h>
 

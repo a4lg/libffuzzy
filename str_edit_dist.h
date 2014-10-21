@@ -16,6 +16,8 @@
 #ifndef FFUZZY_STR_EDIT_DIST_H
 #define FFUZZY_STR_EDIT_DIST_H
 
+#include "ffuzzy_config.h"
+
 #include <stddef.h>
 #include "util.h"
 

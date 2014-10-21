@@ -32,6 +32,8 @@
 	Copyright (C) 2014 Tsukasa OI <li@livegrid.org>
 
 */
+#include "ffuzzy_config.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>

@@ -23,6 +23,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#include "ffuzzy_config.h"
+
 #include <stdbool.h>
 #include <limits.h>
 

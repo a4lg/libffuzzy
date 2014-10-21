@@ -35,6 +35,8 @@
 #ifndef FFUZZY_STR_COMMON_SUBSTR_H
 #define FFUZZY_STR_COMMON_SUBSTR_H
 
+#include "ffuzzy_config.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
