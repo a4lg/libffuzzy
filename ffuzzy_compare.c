@@ -50,6 +50,7 @@
 #include <limits.h>
 
 #include "ffuzzy.h"
+#include "ffuzzy_blocksize.h"
 
 #include "str_common_substr.h"
 #include "str_edit_dist.h"
@@ -126,6 +127,9 @@ static inline bool ffuzzy_read_digest_blocksize(ffuzzy_digest *digest, char** sr
 		return false;
 	// the string does not start with numbers
 	if (*srem == s)
+		return false;
+	// we can't handle invalid block sizes
+	if (!ffuzzy_blocksize_is_valid_(digest->block_size))
 		return false;
 	return true;
 }
