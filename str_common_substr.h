@@ -63,8 +63,8 @@
 	\fn     bool has_common_substring(const char*, size_t, const char*, size_t)
 	\brief  Determine if given strings have common substring of length FFUZZY_MIN_MATCH
 	\details
-		We only accept a match if we have at least one common substring
-		in the signature of length FFUZZY_MIN_MATCH.
+	We only accept a match if we have at least one common substring
+	in the signature of length FFUZZY_MIN_MATCH.
 	\return true if the given strings have a common substring of length FFUZZY_MIN_MATCH.
 	\example examples/internal/has_common_substring.c
 **/

@@ -36,8 +36,8 @@
 	\fn     int edit_distn(const char*, size_t, const char*, size_t)
 	\brief  Compute edit distance between two strings with no replacement
 	\details
-		This function computes Levenshtein distance with no "replacement".
-		It means, single cost 1 operations allowed are "insertion" and "removal".
+	This function computes Levenshtein distance with no "replacement".
+	It means, single cost 1 operations allowed are "insertion" and "removal".
 	\param  s1     String 1 (non-empty)
 	\param  s1len  Length of s1
 	\param  s2     String 2
@@ -82,12 +82,12 @@ static inline int edit_distn(const char *s1, size_t s1len, const char *s2, size_
 	\fn     int edit_distn_norm(const char*, size_t, const char*, size_t)
 	\brief  Compute edit distance between two strings with no replacement
 	\details
-		This function computes Levenshtein distance with no "replacement".
-		It means, single cost 1 operations allowed are "insertion" and "removal".
+	This function computes Levenshtein distance with no "replacement".
+	It means, single cost 1 operations allowed are "insertion" and "removal".
 
-		This function swaps the string to make sure that
-		s1len to pass through edit_distn is always equal or less than s2len.
-		This may prevent stalls on modern processors.
+	This function swaps the string to make sure that
+	s1len to pass through edit_distn is always equal or less than s2len.
+	This may prevent stalls on modern processors.
 	\param  s1     String 1 (non-empty)
 	\param  s1len  Length of s1
 	\param  s2     String 2 (non-empty)

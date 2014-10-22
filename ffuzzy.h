@@ -57,13 +57,16 @@
 #endif
 #include <stddef.h>
 
-/** \brief Maximum size for the digest block **/
+/** \brief Maximum length for the digest block **/
 #define FFUZZY_SPAMSUM_LENGTH 64
 
 /** \brief Minimum block size to start in ssdeep implementation **/
 #define FFUZZY_MIN_BLOCKSIZE 3
 
-/** \brief The minimal match (length of common substring) required **/
+/** \brief
+	The minimal match (length of common substring) required
+	for (at least) one of the block digests
+**/
 #define FFUZZY_MIN_MATCH 7
 
 
@@ -103,7 +106,7 @@ extern "C" {
 		-	@link len1 len1@endlink-sized characters of the first block
 		-	@link len2 len2@endlink-sized characters of the second block
 
-		Valid buffer does not contain sequences of
+		Valid blocks in the buffer do not contain sequences of
 		four or more identical characters.
 
 **/
@@ -316,6 +319,7 @@ bool ffuzzy_digest_is_natural(const ffuzzy_digest *digest);
 		2. Compare block lengths of the first block.
 		3. Compare block lengths of the second block.
 		4. Compare block buffer contents (first and second).
+
 	\param  [in] d1  Valid digest 1
 	\param  [in] d2  Valid digest 2
 	\return
@@ -339,13 +343,14 @@ int ffuzzy_digestcmp_blocksize(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 /**
 	\fn     int ffuzzy_digestcmp_blocksize_n(const ffuzzy_digest*, const ffuzzy_digest*)
 	\brief  Compare two ffuzzy_digest values by whether block sizes are "natural" and block size values
-	\param  [in] d1  Valid digest 1
-	\param  [in] d2  Valid digest 2
 	\details
 		This comparison has priorities.
 
 		1. Compare whether block sizes are "natural" (for ffuzzy_blocksize_is_natural return value, true comes first)
 		2. Compare block sizes.
+
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
 	\return
 		Positive value if d1 < d2, negativa value if d2 > d1
 		and 0 if block size of d1 is equal to d2.
