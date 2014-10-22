@@ -32,6 +32,7 @@
 
 #include "ffuzzy_config.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -80,6 +81,7 @@ static inline bool is_base64(char c)
 
 bool ffuzzy_digest_is_valid_buffer(const ffuzzy_digest *digest)
 {
+	assert(fuzzy_digest_is_valid_lengths(digest));
 	const char *buf = digest->digest;
 	for (size_t i = 3; i < digest->len1; i++, buf++)
 		if (buf[0] == buf[1] && buf[0] == buf[2] && buf[0] == buf[3])
@@ -93,6 +95,7 @@ bool ffuzzy_digest_is_valid_buffer(const ffuzzy_digest *digest)
 
 bool ffuzzy_digest_is_natural_buffer(const ffuzzy_digest *digest)
 {
+	assert(fuzzy_digest_is_valid_lengths(digest));
 	const char *buf = digest->digest;
 	for (size_t i = 0; i < digest->len1 && i < 3; i++)
 		if (!is_base64(buf[i]))
@@ -148,6 +151,7 @@ int ffuzzy_digestcmp(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 
 bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 {
+	assert(fuzzy_digest_is_valid_lengths(digest));
 	// pretty hash contains two colons and trailing '\0'
 	if (buflen < 3)
 		return false;

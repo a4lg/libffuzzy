@@ -41,6 +41,7 @@
 
 #include "ffuzzy_config.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -66,6 +67,7 @@
 
 inline int ffuzzy_score_cap_1(int minslen, unsigned long block_size)
 {
+	assert(minslen >= 0 && minslen < FFUZZY_SPAMSUM_LENGTH);
 	unsigned long block_scale = block_size / FFUZZY_MIN_BLOCKSIZE;
 	if (block_scale >= 100)
 		return 100;
@@ -75,6 +77,8 @@ inline int ffuzzy_score_cap_1(int minslen, unsigned long block_size)
 
 inline int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size)
 {
+	assert(s1len >= 0 && s1len < FFUZZY_SPAMSUM_LENGTH);
+	assert(s2len >= 0 && s2len < FFUZZY_SPAMSUM_LENGTH);
 	return ffuzzy_score_cap_1(MIN(s1len, s2len), block_size);
 }
 
@@ -200,6 +204,9 @@ inline bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s)
 
 inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 {
+	assert(ffuzzy_blocksize_is_near_(d1->block_size, d2->block_size));
+	assert(ffuzzy_digest_is_valid(d1));
+	assert(ffuzzy_digest_is_valid(d2));
 	// special case if two signatures are identical
 	if (
 		d1->block_size == d2->block_size &&

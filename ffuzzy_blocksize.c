@@ -39,6 +39,7 @@
 #include "ffuzzy.h"
 #include "ffuzzy_blocksize.h"
 
+
 bool ffuzzy_blocksize_is_valid(unsigned long block_size)
 {
 	return ffuzzy_blocksize_is_valid_(block_size);
@@ -51,8 +52,5 @@ bool ffuzzy_blocksize_is_natural(unsigned long block_size)
 
 bool ffuzzy_blocksize_is_near(unsigned long block_size1, unsigned long block_size2)
 {
-	return
-		block_size1     == block_size2 ||
-		block_size1 * 2 == block_size2 ||
-		block_size2 * 2 == block_size1;
+	return ffuzzy_blocksize_is_near_(block_size1, block_size2);
 }

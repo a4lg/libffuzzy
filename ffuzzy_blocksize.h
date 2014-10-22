@@ -34,6 +34,7 @@
 
 #include "ffuzzy_config.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <limits.h>
 
@@ -63,6 +64,21 @@ static inline bool ffuzzy_blocksize_is_natural_(unsigned long block_size)
 	while (block_size != FFUZZY_MIN_BLOCKSIZE && !(block_size & 1ul))
 		block_size >>= 1;
 	return block_size == FFUZZY_MIN_BLOCKSIZE;
+}
+
+/**
+	\internal
+	\fn   bool ffuzzy_blocksize_is_near_(unsigned long, unsigned long)
+	\see  bool ffuzzy_blocksize_is_near(unsigned long, unsigned long)
+**/
+static inline bool ffuzzy_blocksize_is_near_(unsigned long block_size1, unsigned block_size2)
+{
+	assert(ffuzzy_blocksize_is_valid_(block_size1));
+	assert(ffuzzy_blocksize_is_valid_(block_size2));
+	return
+		block_size1     == block_size2 ||
+		block_size1 * 2 == block_size2 ||
+		block_size2 * 2 == block_size1;
 }
 
 #endif

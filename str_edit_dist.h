@@ -51,6 +51,9 @@ static inline int edit_distn(const char *s1, size_t s1len, const char *s2, size_
 	int *t1 = t[0], *t2 = t[1], *t3;
 	size_t i1, i2;
 	// assume that s1len (length of s1) is greater than zero.
+	assert(s1len > 0);
+	assert(s1len <= EDIT_DISTN_MAXLEN);
+	assert(s2len <= EDIT_DISTN_MAXLEN);
 	t1[0] = 1;
 	for (i2 = 0; i2 < s2len; i2++)
 	{
@@ -93,6 +96,8 @@ static inline int edit_distn(const char *s1, size_t s1len, const char *s2, size_
 **/
 static inline int edit_distn_norm(const char *s1, size_t s1len, const char *s2, size_t s2len)
 {
+	assert(s1len > 0);
+	assert(s2len > 0);
 	if (s1len <= s2len)
 		return edit_distn(s1, s1len, s2, s2len);
 	else

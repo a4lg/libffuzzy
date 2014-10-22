@@ -43,6 +43,7 @@
 
 #include "ffuzzy_config.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -68,6 +69,8 @@ static inline bool has_common_substring(
 	const char *s2, size_t s2len
 )
 {
+	assert(s1len <= HAS_COMMON_SUBSTR_MAXLEN);
+	assert(s2len <= HAS_COMMON_SUBSTR_MAXLEN);
 #if HAS_COMMON_SUBSTR_MAXLEN >= ROLLING_WINDOW
 	// if (at least) one of two strings is shorter than
 	// ROLLING_WINDOW length, it will never find substring
