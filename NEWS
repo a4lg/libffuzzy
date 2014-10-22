@@ -2,6 +2,17 @@ libffuzzy : Fast ssdeep comparison library
 ===========================================
 
 
+Version 2.0 - 2014-10-22
+-------------------------
+
+*	Optimized the code (further more)
+*	Added specialized comparison/clustering/manipulation interface
+*	Fixed parser to prevent arithmetic overflow
+*	Added debug/assertion code
+*	Fixed documentation
+*	Added documentation for Doxygen
+
+
 Version 1.1.1 - 2014-10-20
 ---------------------------
 

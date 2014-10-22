@@ -30,5 +30,9 @@ Performance
 Version 1.1 achieved expected performance gain.
 libffuzzy is now faster than libfuzzy in most cases.
 
-In the large clustering job (about 100k hashes), libffuzzy was
-about 50% faster than libfuzzy.
+In version 2.0, interfaces for specialized comparison and clustering
+are added. Clustering applications will get faster if you use
+this optimized implementation correctly.
+
+In the large clustering job (about 100k hashes),
+libffuzzy 2.0 was about 60% faster than libfuzzy 2.11.
