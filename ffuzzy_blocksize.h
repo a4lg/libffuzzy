@@ -81,4 +81,24 @@ static inline bool ffuzzy_blocksize_is_near_(unsigned long block_size1, unsigned
 		block_size2 * 2 == block_size1;
 }
 
+
+/**
+	\internal
+	\fn     int ffuzzy_blocksizecmp(unsigned long, unsigned long)
+	\brief  Compare two block size values
+	\param  block_size1  Block size 1
+	\param  block_size2  Block size 2
+	\return
+		Positive value if block_size1 < block_size2, negative value if block_size1 > block_size2
+		and 0 if block_size1 is equal to block_size2.
+**/
+static inline int ffuzzy_blocksizecmp(unsigned long block_size1, unsigned long block_size2)
+{
+	if (block_size1 > block_size2)
+		return +1;
+	if (block_size1 < block_size2)
+		return -1;
+	return 0;
+}
+
 #endif

@@ -83,15 +83,24 @@ inline int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size)
 }
 
 
-int ffuzzy_score_strings(
+/**
+	\internal
+	\fn     int ffuzzy_score_strings_unsafe(const char*, size_t, const char*, size_t, unsigned long)
+	\brief  Compute partial similarity score for given two block strings and block size (unsafe version)
+	\param  [in] s1          Digest block 1
+	\param       s1len       Length of s1
+	\param  [in] s2          Digest block 2
+	\param       s2len       Length of s2
+	\param       block_size  Block size for two digest blocks
+	\return [0,100] values represent partial similarity score or negative values on failure.
+	\see    fuzzy_score_strings(const char*, size_t, const char*, size_t, unsigned long)
+**/
+static inline int ffuzzy_score_strings_unsafe(
 	const char *s1, size_t s1len,
 	const char *s2, size_t s2len,
 	unsigned long block_size
 )
 {
-	// cannot score long signatures
-	if (s1len > FFUZZY_SPAMSUM_LENGTH || s2len > FFUZZY_SPAMSUM_LENGTH)
-		return 0;
 	// the two strings must have a common substring
 	// of length ROLLING_WINDOW to be candidates
 	if (!has_common_substring(s1, s1len, s2, s2len))
@@ -110,6 +119,19 @@ int ffuzzy_score_strings(
 	}
 	int score_cap = (int)block_scale * MIN((int)s1len, (int)s2len);
 	return MIN(score, score_cap);
+}
+
+
+int ffuzzy_score_strings(
+	const char *s1, size_t s1len,
+	const char *s2, size_t s2len,
+	unsigned long block_size
+)
+{
+	// cannot score long signatures
+	if (s1len > FFUZZY_SPAMSUM_LENGTH || s2len > FFUZZY_SPAMSUM_LENGTH)
+		return 0;
+	return ffuzzy_score_strings_unsafe(s1, s1len, s2, s2len, block_size);
 }
 
 
@@ -193,7 +215,7 @@ static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, con
 }
 
 
-inline bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s)
+bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s)
 {
 	char *p;
 	if (!ffuzzy_read_digest_blocksize(digest, &p, s))
@@ -237,28 +259,66 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 	// that they have at least one block size in common
 	if (d1->block_size == d2->block_size)
 	{
-		int score1 = ffuzzy_score_strings(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
-		int score2 = ffuzzy_score_strings(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
+		int score1 = ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
+		int score2 = ffuzzy_score_strings_unsafe(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
 		return MAX(score1, score2);
 	}
-	else if (d1->block_size == d2->block_size * 2)
-		return ffuzzy_score_strings(d1->digest, d1->len1, d2->digest + d2->len1, d2->len2, d1->block_size);
+	else if (d1->block_size * 2 == d2->block_size)
+		return ffuzzy_score_strings_unsafe(d1->digest + d1->len1, d1->len2, d2->digest, d2->len1, d2->block_size);
 	else
-		return ffuzzy_score_strings(d1->digest + d1->len1, d1->len2, d2->digest, d2->len1, d2->block_size);
+		return ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest + d2->len1, d2->len2, d1->block_size);
 }
 
 
-inline int ffuzzy_compare_digest(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
+int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 {
-	// don't compare if the blocksizes are not close.
+	assert(ffuzzy_digest_is_valid(d1));
+	assert(ffuzzy_digest_is_valid(d2));
+	assert(d1->block_size == d2->block_size);
+	// special case if two signatures are identical
 	if (
-		d1->block_size != d2->block_size     &&
-		d2->block_size != d1->block_size * 2 &&
-		d1->block_size != d2->block_size * 2
+		d1->len1 == d2->len1 &&
+		d1->len2 == d2->len2 &&
+		!memcmp(d1->digest, d2->digest, d1->len1 + d1->len2)
 	)
 	{
-		return 0;
+		// cap scores (same as ffuzzy_score_strings)
+		int score_cap;
+		if (d1->len2 >= ROLLING_WINDOW)
+		{
+			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
+			if (score_cap >= 100)
+				return 100;
+		}
+		else
+			score_cap = 0;
+		if (d1->len1 >= ROLLING_WINDOW)
+		{
+			int tmp = ffuzzy_score_cap_1((int)d1->len1, d1->block_size);
+			score_cap = MAX(score_cap, tmp);
+		}
+		return MIN(100, score_cap);
 	}
+	int score1 = ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
+	int score2 = ffuzzy_score_strings_unsafe(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
+	return MAX(score1, score2);
+}
+
+
+int ffuzzy_compare_digest_near_lt(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
+{
+	assert(ffuzzy_digest_is_valid(d1));
+	assert(ffuzzy_digest_is_valid(d2));
+	assert(d1->block_size * 2 == d2->block_size);
+	return ffuzzy_score_strings_unsafe(d1->digest + d1->len1, d1->len2, d2->digest, d2->len1, d2->block_size);
+}
+
+
+int ffuzzy_compare_digest(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
+{
+	// don't compare if the blocksizes are not close.
+	if (!ffuzzy_blocksize_is_near_(d1->block_size, d2->block_size))
+		return 0;
 	return ffuzzy_compare_digest_near(d1, d2);
 }
 
@@ -271,14 +331,8 @@ int ffuzzy_compare(const char *str1, const char *str2)
 	if (!ffuzzy_read_digest_blocksize(&d1, &p1, str1) || !ffuzzy_read_digest_blocksize(&d2, &p2, str2))
 		return -1;
 	// don't compare if the blocksizes are not close.
-	if (
-		d1.block_size != d2.block_size     &&
-		d2.block_size != d1.block_size * 2 &&
-		d1.block_size != d2.block_size * 2
-	)
-	{
+	if (!ffuzzy_blocksize_is_near_(d1.block_size, d2.block_size))
 		return 0;
-	}
 	// read remaining parts
 	if (!ffuzzy_read_digest_after_blocksize(&d1, p1) || !ffuzzy_read_digest_after_blocksize(&d2, p2))
 		return -1;

@@ -32,7 +32,7 @@
 
 #include "ffuzzy_config.h"
 
-
+#include <assert.h>
 #include <stdbool.h>
 #include <limits.h>
 
@@ -53,4 +53,10 @@ bool ffuzzy_blocksize_is_natural(unsigned long block_size)
 bool ffuzzy_blocksize_is_near(unsigned long block_size1, unsigned long block_size2)
 {
 	return ffuzzy_blocksize_is_near_(block_size1, block_size2);
+}
+
+bool ffuzzy_blocksize_is_far_le(unsigned long block_size1, unsigned long block_size2)
+{
+	assert(block_size1 <= block_size2);
+	return block_size1 * 2 < block_size2;
 }

@@ -131,8 +131,8 @@ bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s);
 /**
 	\fn     int ffuzzy_compare_digest(const ffuzzy_digest*, const ffuzzy_digest*)
 	\brief  Compare two fuzzy hashes and compute similarity score
-	\param  [in] d1  Digest 1
-	\param  [in] d2  Digest 2
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
 	\return [0,100] values represent similarity score or negative values on failure.
 **/
 int ffuzzy_compare_digest(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
@@ -205,6 +205,26 @@ bool ffuzzy_blocksize_is_natural(unsigned long block_size);
 	\return true if the given block sizes are "near"; false otherwise.
 **/
 bool ffuzzy_blocksize_is_near(unsigned long block_size1, unsigned long block_size2);
+
+/**
+	\fn     bool ffuzzy_blocksize_is_far_le(unsigned long, unsigned long)
+	\brief  Determines whether given ordered block sizes "far" enough
+	\details
+		In this context, "far" means
+		the second block size is greater than double of the first block size.
+
+		For block size-sorted digests, "far" means there are no
+		subsequent entries which will match.
+
+		This function determines whether given block sizes are "far".
+
+		You may want to inline or reimplement this because
+		this function is very easy. There's nothing preventing you to do that.
+	\param  block_size1  Valid block size 1
+	\param  block_size2  Valid block size 2 (must be equal or greater than block_size1)
+	\return true if the given block sizes are "far"; false otherwise.
+**/
+bool ffuzzy_blocksize_is_far_le(unsigned long block_size1, unsigned long block_size2);
 
 /** \} **/
 
@@ -292,8 +312,8 @@ bool ffuzzy_digest_is_natural(const ffuzzy_digest *digest);
 		2. Compare block lengths of the first block.
 		3. Compare block lengths of the second block.
 		4. Compare block buffer contents (first and second).
-	\param  [in] d1  Digest 1
-	\param  [in] d2  Digest 2
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
 	\return
 		Positive value if d1 < d2, negativa value if d2 > d1
 		and 0 if d1 is equal to d2.
@@ -301,11 +321,41 @@ bool ffuzzy_digest_is_natural(const ffuzzy_digest *digest);
 int ffuzzy_digestcmp(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
 
 /**
+	\fn     int ffuzzy_digestcmp_blocksize(const ffuzzy_digest*, const ffuzzy_digest*)
+	\brief  Compare two ffuzzy_digest values by block sizes
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
+	\return
+		Positive value if d1 < d2, negativa value if d2 > d1
+		and 0 if block size of d1 is equal to d2.
+	\see    int ffuzzy_digestcmp(const ffuzzy_digest*, const ffuzzy_digest*)
+**/
+int ffuzzy_digestcmp_blocksize(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+
+/**
+	\fn     int ffuzzy_digestcmp_blocksize_n(const ffuzzy_digest*, const ffuzzy_digest*)
+	\brief  Compare two ffuzzy_digest values by whether block sizes are "natural" and block size values
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
+	\details
+		This comparison has priorities.
+
+		1. Compare whether block sizes are "natural" (for ffuzzy_blocksize_is_natural return value, true comes first)
+		2. Compare block sizes.
+	\return
+		Positive value if d1 < d2, negativa value if d2 > d1
+		and 0 if block size of d1 is equal to d2.
+	\see    bool ffuzzy_blocksize_is_natural(unsigned long)
+	\see    int ffuzzy_digestcmp(const ffuzzy_digest*, const ffuzzy_digest*)
+**/
+int ffuzzy_digestcmp_blocksize_n(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+
+/**
 	\fn     bool ffuzzy_pretty_digest(char*, size_t, const ffuzzy_digest*)
 	\brief  Convert ffuzzy_digest to the string
 	\param  [out] buf     Buffer to store string
 	\param        buflen  Size of buf
-	\param  [in]  digest  Digest to convert
+	\param  [in]  digest  A valid digest to convert
 	\return true if succeeds; false otherwise.
 **/
 bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest);
@@ -329,11 +379,35 @@ bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 		This function assumes two block sizes are "near"
 		(ffuzzy_blocksize_is_near on two block sizes returns true) and
 		make the computation slightly faster.
-	\param  [in] d1  Digest 1
-	\param  [in] d2  Digest 2
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
 	\return [0,100] values represent similarity score or negative values on failure.
 **/
 int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+
+/**
+	\fn     int ffuzzy_compare_digest_near_eq(const ffuzzy_digest*, const ffuzzy_digest*)
+	\brief  Compare two fuzzy hashes assuming two block sizes are same
+	\details
+		This function assumes two block sizes are same.
+	\param  [in] d1  Valid digest 1 (with same block size as d2)
+	\param  [in] d2  Valid digest 2 (with same block size as d1)
+	\return [0,100] values represent similarity score or negative values on failure.
+	\see    int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
+**/
+int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+
+/**
+	\fn     int ffuzzy_compare_digest_near_lt(const ffuzzy_digest*, const ffuzzy_digest*)
+	\brief  Compare two fuzzy hashes assuming second block size is double as first one
+	\details
+		This function assumes second block size is double as first one.
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2 (with double block size as d1)
+	\return [0,100] values represent similarity score or negative values on failure.
+	\see    int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
+**/
+int ffuzzy_compare_digest_near_lt(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
 
 /** \} **/
 
@@ -357,6 +431,8 @@ int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 	\return
 		Maximum (partial) similarity score value.
 		If the return value is greater than 100, the score cap is 100.
+
+		If s1len or s2len is out of range [0,FFUZZY_SPAMSUM_LENGTH], the value is undefined.
 **/
 int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size);
 
@@ -372,6 +448,8 @@ int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size);
 	\return
 		Maximum (partial) similarity score value.
 		If the return value is greater than 100, the score cap is 100.
+
+		If minslen is out of range [0,FFUZZY_SPAMSUM_LENGTH], the value is undefined.
 **/
 int ffuzzy_score_cap_1(int minslen, unsigned long block_size);
 

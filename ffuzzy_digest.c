@@ -149,6 +149,28 @@ int ffuzzy_digestcmp(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 }
 
 
+int ffuzzy_digestcmp_blocksize(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
+{
+	return ffuzzy_blocksizecmp(d1->block_size, d2->block_size);
+}
+
+
+int ffuzzy_digestcmp_blocksize_n(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
+{
+	bool nat1 = ffuzzy_blocksize_is_natural_(d1->block_size);
+	bool nat2 = ffuzzy_blocksize_is_natural_(d2->block_size);
+	if (nat1 == nat2)
+		return ffuzzy_blocksizecmp(d1->block_size, d2->block_size);
+	else
+	{
+		if (!nat1 && nat2)
+			return +1;
+		else
+			return -1;
+	}
+}
+
+
 bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 {
 	assert(fuzzy_digest_is_valid_lengths(digest));
