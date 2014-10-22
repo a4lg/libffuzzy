@@ -122,7 +122,7 @@ static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, con
 		return false;
 	// read first block of ssdeep hash
 	// (eliminating sequences of 4 or more identical characters)
-	digest->size2 = 0;
+	digest->len2 = 0;
 	char *o = digest->digest;
 	while (true)
 	{
@@ -131,31 +131,31 @@ static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, con
 			return false;
 		if (c == ':')
 			break;
-		if (digest->size2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
+		if (digest->len2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
 		{
-			if (digest->size2 == FFUZZY_SPAMSUM_LENGTH)
+			if (digest->len2 == FFUZZY_SPAMSUM_LENGTH)
 				return false;
-			digest->size2++;
+			digest->len2++;
 			*o++ = c;
 		}
 	}
 	// read second block of ssdeep hash
 	// (eliminating sequences of 4 or more identical characters)
-	digest->size1 = digest->size2;
+	digest->len1 = digest->len2;
 	while (true)
 	{
 		char c = *++s;
 		if (!c || c == ',')
 			break;
-		if (digest->size2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
+		if (digest->len2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
 		{
-			if (digest->size2 == digest->size1 + FFUZZY_SPAMSUM_LENGTH)
+			if (digest->len2 == digest->len1 + FFUZZY_SPAMSUM_LENGTH)
 				return false;
-			digest->size2++;
+			digest->len2++;
 			*o++ = c;
 		}
 	}
-	digest->size2 -= digest->size1;
+	digest->len2 -= digest->len1;
 	return true;
 }
 
@@ -175,24 +175,24 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 	// special case if two signatures are identical
 	if (
 		d1->block_size == d2->block_size &&
-		d1->size1 == d2->size1 &&
-		d1->size2 == d2->size2 &&
-		!memcmp(d1->digest, d2->digest, d1->size1 + d1->size2)
+		d1->len1 == d2->len1 &&
+		d1->len2 == d2->len2 &&
+		!memcmp(d1->digest, d2->digest, d1->len1 + d1->len2)
 	)
 	{
 		// cap scores (same as ffuzzy_score_strings)
 		int score_cap;
-		if (d1->size2 >= ROLLING_WINDOW)
+		if (d1->len2 >= ROLLING_WINDOW)
 		{
-			score_cap = ffuzzy_score_cap_1((int)d1->size2, d1->block_size * 2);
+			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
 			if (score_cap >= 100)
 				return 100;
 		}
 		else
 			score_cap = 0;
-		if (d1->size1 >= ROLLING_WINDOW)
+		if (d1->len1 >= ROLLING_WINDOW)
 		{
-			int tmp = ffuzzy_score_cap_1((int)d1->size1, d1->block_size);
+			int tmp = ffuzzy_score_cap_1((int)d1->len1, d1->block_size);
 			score_cap = MAX(score_cap, tmp);
 		}
 		return MIN(100, score_cap);
@@ -202,14 +202,14 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 	// that they have at least one block size in common
 	if (d1->block_size == d2->block_size)
 	{
-		int score1 = ffuzzy_score_strings(d1->digest, d1->size1, d2->digest, d2->size1, d1->block_size);
-		int score2 = ffuzzy_score_strings(d1->digest+d1->size1, d1->size2, d2->digest+d2->size1, d2->size2, d1->block_size * 2);
+		int score1 = ffuzzy_score_strings(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
+		int score2 = ffuzzy_score_strings(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
 		return MAX(score1, score2);
 	}
 	else if (d1->block_size == d2->block_size * 2)
-		return ffuzzy_score_strings(d1->digest, d1->size1, d2->digest + d2->size1, d2->size2, d1->block_size);
+		return ffuzzy_score_strings(d1->digest, d1->len1, d2->digest + d2->len1, d2->len2, d1->block_size);
 	else
-		return ffuzzy_score_strings(d1->digest + d1->size1, d1->size2, d2->digest, d2->size1, d2->block_size);
+		return ffuzzy_score_strings(d1->digest + d1->len1, d1->len2, d2->digest, d2->len1, d2->block_size);
 }
 
 

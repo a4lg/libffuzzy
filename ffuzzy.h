@@ -49,7 +49,7 @@ extern "C" {
 
 typedef struct
 {
-	size_t size1, size2;
+	size_t len1, len2;
 	unsigned long block_size;
 	char digest[FFUZZY_SPAMSUM_LENGTH * 2];
 } ffuzzy_digest;

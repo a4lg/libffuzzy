@@ -35,9 +35,9 @@
 inline bool ffuzzy_digest_is_valid_lengths(const ffuzzy_digest *digest)
 {
 	return
-		digest->size1 <= FFUZZY_SPAMSUM_LENGTH &&
-		digest->size2 <= FFUZZY_SPAMSUM_LENGTH &&
-		(digest->size1 + digest->size2) <= FFUZZY_SPAMSUM_LENGTH * 2;
+		digest->len1 <= FFUZZY_SPAMSUM_LENGTH &&
+		digest->len2 <= FFUZZY_SPAMSUM_LENGTH &&
+		(digest->len1 + digest->len2) <= FFUZZY_SPAMSUM_LENGTH * 2;
 }
 
 static inline bool is_base64(char c)
@@ -64,10 +64,10 @@ static inline bool is_base64(char c)
 bool ffuzzy_digest_is_valid_buffer(const ffuzzy_digest *digest)
 {
 	const char *buf = digest->digest;
-	for (size_t i = 3; i < digest->size1; i++, buf++)
+	for (size_t i = 3; i < digest->len1; i++, buf++)
 		if (buf[0] == buf[1] && buf[0] == buf[2] && buf[0] == buf[3])
 			return false;
-	for (size_t i = 3; i < digest->size2; i++, buf++)
+	for (size_t i = 3; i < digest->len2; i++, buf++)
 		if (buf[0] == buf[1] && buf[0] == buf[2] && buf[0] == buf[3])
 			return false;
 	return true;
@@ -76,13 +76,13 @@ bool ffuzzy_digest_is_valid_buffer(const ffuzzy_digest *digest)
 bool ffuzzy_digest_is_natural_buffer(const ffuzzy_digest *digest)
 {
 	const char *buf = digest->digest;
-	for (size_t i = 0; i < digest->size1 && i < 3; i++)
+	for (size_t i = 0; i < digest->len1 && i < 3; i++)
 		if (!is_base64(buf[i]))
 			return false;
 	for (size_t i = 3; i < digest->len1; i++, buf++)
 		if (!is_base64(buf[3]) || (buf[0] == buf[1] && buf[0] == buf[2] && buf[0] == buf[3]))
 			return false;
-	for (size_t i = 0; i < digest->size2 && i < 3; i++, buf++)
+	for (size_t i = 0; i < digest->len2 && i < 3; i++, buf++)
 		if (!is_base64(buf[3]))
 			return false;
 	for (size_t i = 3; i < digest->len2; i++, buf++)
@@ -113,15 +113,15 @@ int ffuzzy_digestcmp(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 		return +1;
 	if (d1->block_size < d2->block_size)
 		return -1;
-	if (d1->size1 > d2->size1)
+	if (d1->len1 > d2->len1)
 		return +1;
-	if (d1->size1 < d2->size1)
+	if (d1->len1 < d2->len1)
 		return -1;
-	if (d1->size2 > d2->size2)
+	if (d1->len2 > d2->len2)
 		return +1;
-	if (d1->size2 < d2->size2)
+	if (d1->len2 < d2->len2)
 		return -1;
-	return memcmp(d1->digest, d2->digest, d1->size1 + d1->size2);
+	return memcmp(d1->digest, d2->digest, d1->len1 + d1->len2);
 }
 
 bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
@@ -130,11 +130,11 @@ bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 	if (buflen < 3)
 		return false;
 	// buf must be big enough to contain two colons and two buffers.
-	if ((buflen - 3) < (digest->size1 + digest->size2))
+	if ((buflen - 3) < (digest->len1 + digest->len2))
 		return false;
 	// write block size if possible
 	{
-		size_t bslen = (buflen - 2) - (digest->size1 + digest->size2);
+		size_t bslen = (buflen - 2) - (digest->len1 + digest->len2);
 		int bsret = snprintf(buf, bslen, "%lu", digest->block_size);
 		if (bsret < 0)
 			return false;
@@ -144,9 +144,9 @@ bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 	}
 	// write blocks
 	buf[0] = ':';
-	memcpy(buf + 1, digest->digest, digest->size1);
-	buf[digest->size1 + 1] = ':';
-	memcpy(buf + digest->size1 + 1, digest->digest + digest->size1, digest->size2);
-	buf[digest->size1 + digest->size2 + 2] = '\0';
+	memcpy(buf + 1, digest->digest, digest->len1);
+	buf[digest->len1 + 1] = ':';
+	memcpy(buf + digest->len1 + 1, digest->digest + digest->len1, digest->len2);
+	buf[digest->len1 + digest->len2 + 2] = '\0';
 	return true;
 }
