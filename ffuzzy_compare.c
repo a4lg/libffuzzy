@@ -102,7 +102,7 @@ static inline int ffuzzy_score_strings_unsafe(
 )
 {
 	// the two strings must have a common substring
-	// of length ROLLING_WINDOW to be candidates
+	// of length FFUZZY_MIN_MATCH to be candidates
 	if (!has_common_substring(s1, s1len, s2, s2len))
 		return 0;
 	// compute the score by scaling edit distance by
@@ -239,7 +239,7 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 	{
 		// cap scores (same as ffuzzy_score_strings)
 		int score_cap;
-		if (d1->len2 >= ROLLING_WINDOW)
+		if (d1->len2 >= FFUZZY_MIN_MATCH)
 		{
 			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
 			if (score_cap >= 100)
@@ -247,7 +247,7 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 		}
 		else
 			score_cap = 0;
-		if (d1->len1 >= ROLLING_WINDOW)
+		if (d1->len1 >= FFUZZY_MIN_MATCH)
 		{
 			int tmp = ffuzzy_score_cap_1((int)d1->len1, d1->block_size);
 			score_cap = MAX(score_cap, tmp);
@@ -284,7 +284,7 @@ int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *
 	{
 		// cap scores (same as ffuzzy_score_strings)
 		int score_cap;
-		if (d1->len2 >= ROLLING_WINDOW)
+		if (d1->len2 >= FFUZZY_MIN_MATCH)
 		{
 			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
 			if (score_cap >= 100)
@@ -292,7 +292,7 @@ int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *
 		}
 		else
 			score_cap = 0;
-		if (d1->len1 >= ROLLING_WINDOW)
+		if (d1->len1 >= FFUZZY_MIN_MATCH)
 		{
 			int tmp = ffuzzy_score_cap_1((int)d1->len1, d1->block_size);
 			score_cap = MAX(score_cap, tmp);

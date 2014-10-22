@@ -53,15 +53,19 @@
 /** \internal \brief Maximum length for has_common_substring function **/
 #define HAS_COMMON_SUBSTR_MAXLEN 64
 
+#if FFUZZY_MIN_MATCH < ROLLING_WINDOW
+#error FFUZZY_MIN_MATCH must have at least ROLLING_WINDOW on current implementation.
+#endif
+
 
 /**
 	\internal
 	\fn     bool has_common_substring(const char*, size_t, const char*, size_t)
-	\brief  Determine if given strings have common substring of length ROLLING_WINDOW
+	\brief  Determine if given strings have common substring of length FFUZZY_MIN_MATCH
 	\details
 		We only accept a match if we have at least one common substring
-		in the signature of length ROLLING_WINDOW.
-	\return true if the given strings have a common substring of length ROLLING_WINDOW.
+		in the signature of length FFUZZY_MIN_MATCH.
+	\return true if the given strings have a common substring of length FFUZZY_MIN_MATCH.
 	\example examples/internal/has_common_substring.c
 **/
 static inline bool has_common_substring(
@@ -71,40 +75,40 @@ static inline bool has_common_substring(
 {
 	assert(s1len <= HAS_COMMON_SUBSTR_MAXLEN);
 	assert(s2len <= HAS_COMMON_SUBSTR_MAXLEN);
-#if HAS_COMMON_SUBSTR_MAXLEN >= ROLLING_WINDOW
+#if HAS_COMMON_SUBSTR_MAXLEN >= FFUZZY_MIN_MATCH
 	// if (at least) one of two strings is shorter than
-	// ROLLING_WINDOW length, it will never find substring
-	if (s1len < ROLLING_WINDOW)
+	// FFUZZY_MIN_MATCH length, it will never find substring
+	if (s1len < FFUZZY_MIN_MATCH)
 		return false;
-	if (s2len < ROLLING_WINDOW)
+	if (s2len < FFUZZY_MIN_MATCH)
 		return false;
 
-	uint_least32_t hashes[HAS_COMMON_SUBSTR_MAXLEN - (ROLLING_WINDOW - 1)];
+	uint_least32_t hashes[HAS_COMMON_SUBSTR_MAXLEN - (FFUZZY_MIN_MATCH - 1)];
 	roll_state state;
 
-	// compute ROLLING_WINDOW-width rolling hashes for each index of s1
+	// compute FFUZZY_MIN_MATCH-width rolling hashes for each index of s1
 	memset(hashes, 0, sizeof(hashes));
 	roll_init(&state);
-	for (size_t i = 0; i < ROLLING_WINDOW - 1; i++)
+	for (size_t i = 0; i < FFUZZY_MIN_MATCH - 1; i++)
 		roll_hash(&state, (unsigned char)s1[i]);
-	for (size_t i = ROLLING_WINDOW - 1; i < s1len; i++)
+	for (size_t i = FFUZZY_MIN_MATCH - 1; i < s1len; i++)
 	{
 		roll_hash(&state, (unsigned char)s1[i]);
-		hashes[i - (ROLLING_WINDOW - 1)] = roll_sum(&state);
+		hashes[i - (FFUZZY_MIN_MATCH - 1)] = roll_sum(&state);
 	}
 
-	// compute ROLLING_WINDOW-width rolling hashes for each index of s2
+	// compute FFUZZY_MIN_MATCH-width rolling hashes for each index of s2
 	roll_init(&state);
-	for (size_t j = 0; j < ROLLING_WINDOW - 1; j++)
+	for (size_t j = 0; j < FFUZZY_MIN_MATCH - 1; j++)
 		roll_hash(&state, (unsigned char)s2[j]);
-	for (size_t j = 0; j < s2len - (ROLLING_WINDOW - 1); j++)
+	for (size_t j = 0; j < s2len - (FFUZZY_MIN_MATCH - 1); j++)
 	{
-		roll_hash(&state, (unsigned char)s2[j + (ROLLING_WINDOW - 1)]);
+		roll_hash(&state, (unsigned char)s2[j + (FFUZZY_MIN_MATCH - 1)]);
 		uint_least32_t h = roll_sum(&state);
-		for (size_t i = 0; i < s1len - (ROLLING_WINDOW - 1); i++)
+		for (size_t i = 0; i < s1len - (FFUZZY_MIN_MATCH - 1); i++)
 		{
 			// make sure we actually have common substring if hash matches
-			if (hashes[i] == h && !memcmp(s1 + i, s2 + j, ROLLING_WINDOW))
+			if (hashes[i] == h && !memcmp(s1 + i, s2 + j, FFUZZY_MIN_MATCH))
 			{
 				return true;
 			}

@@ -62,6 +62,9 @@
 /** \brief Minimum block size to start in ssdeep implementation **/
 #define FFUZZY_MIN_BLOCKSIZE 3
 
+/** \brief The minimal match (length of common substring) required **/
+#define FFUZZY_MIN_MATCH 7
+
 
 #ifdef __cplusplus
 extern "C" {
