@@ -26,6 +26,12 @@
 #ifndef FFUZZY_FFUZZY_BLOCKSIZE_H
 #define FFUZZY_FFUZZY_BLOCKSIZE_H
 
+/**
+	\internal
+	\file  ffuzzy_blocksize.h
+	\brief Block size utility for fuzzy hashes
+**/
+
 #include "ffuzzy_config.h"
 
 #include <stdbool.h>
@@ -33,11 +39,21 @@
 
 #include "ffuzzy.h"
 
+/**
+	\internal
+	\fn   bool ffuzzy_blocksize_is_valid_(unsigned long)
+	\see  bool ffuzzy_blocksize_is_valid(unsigned long)
+**/
 static inline bool ffuzzy_blocksize_is_valid_(unsigned long block_size)
 {
 	return block_size <= (ULONG_MAX / 2);
 }
 
+/**
+	\internal
+	\fn   bool ffuzzy_blocksize_is_natural_(unsigned long)
+	\see  bool ffuzzy_blocksize_is_natural(unsigned long)
+**/
 static inline bool ffuzzy_blocksize_is_natural_(unsigned long block_size)
 {
 	if (block_size < FFUZZY_MIN_BLOCKSIZE)

@@ -35,6 +35,12 @@
 #ifndef FFUZZY_STR_COMMON_SUBSTR_H
 #define FFUZZY_STR_COMMON_SUBSTR_H
 
+/**
+	\internal
+	\file  str_common_substr.h
+	\brief Common substring finder
+**/
+
 #include "ffuzzy_config.h"
 
 #include <stdbool.h>
@@ -43,27 +49,20 @@
 
 #include "str_hash_rolling.h"
 
+/** \internal \brief Maximum length for has_common_substring function **/
 #define HAS_COMMON_SUBSTR_MAXLEN 64
 
 
-/*
-	FUNCTION: has_common_substring
-
-	We only accept a match if we have at least one common substring
-	in the signature of length ROLLING_WINDOW. It returns true if
-	the two strings have a common substring, false otherwise.
-
-	Examples (if ROLLING_WINDOW equals 3):
-
-	"abcde" and "cdefg":
-		true (with substring "cde")
-	"common" and "different":
-		false (no common substring of length 3)
-	"abc" and "abc":
-		true (with substring "abc")
-	"ab" and "ab":
-		false (they are identical but don't have common substring of length 3)
-*/
+/**
+	\internal
+	\fn     bool has_common_substring(const char*, size_t, const char*, size_t)
+	\brief  Determine if given strings have common substring of length ROLLING_WINDOW
+	\details
+		We only accept a match if we have at least one common substring
+		in the signature of length ROLLING_WINDOW.
+	\return true if the given strings have a common substring of length ROLLING_WINDOW.
+	\example examples/internal/has_common_substring.c
+**/
 static inline bool has_common_substring(
 	const char *s1, size_t s1len,
 	const char *s2, size_t s2len

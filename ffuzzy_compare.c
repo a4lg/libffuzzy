@@ -32,6 +32,13 @@
 	Copyright (C) 2014 Tsukasa OI <li@livegrid.org>
 
 */
+
+/**
+	\internal
+	\file  ffuzzy_compare.c
+	\brief Fuzzy hash comparison implementation
+**/
+
 #include "ffuzzy_config.h"
 
 #include <stdbool.h>
@@ -101,6 +108,15 @@ int ffuzzy_score_strings(
 }
 
 
+/**
+	\internal
+	\fn     bool ffuzzy_read_digest_blocksize(ffuzzy_digest*, char**, const char*)
+	\brief  Read block size from the string
+	\param  [out] digest  The pointer to the digest
+	\param  [out] srem    The value pointed by this parameter is set to the first non-numerical character.
+	\param  [in]  s       The string which contains a ssdeep digest.
+	\return true if succeeds; false otherwise.
+**/
 static inline bool ffuzzy_read_digest_blocksize(ffuzzy_digest *digest, char** srem, const char *s)
 {
 	errno = 0;
@@ -115,6 +131,15 @@ static inline bool ffuzzy_read_digest_blocksize(ffuzzy_digest *digest, char** sr
 }
 
 
+/**
+	\internal
+	\fn     bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest*, const char*)
+	\brief  Read remaining digest parts (except block size) from the string
+	\param  [out] digest  The pointer to the buffer to store valid digest after parsing.
+	\param  [in]  s       The pointer to the first non-numerical part of a ssdeep digest.
+	\return true if succeeds; false otherwise.
+	\see    ffuzzy_read_digest_blocksize(ffuzzy_digest*, char**, const char*)
+**/
 static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, const char *s)
 {
 	// ':' must follow after the number (which is block_size)
@@ -169,7 +194,6 @@ inline bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s)
 }
 
 
-// skip block size checks and compare two digest
 inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 {
 	// special case if two signatures are identical

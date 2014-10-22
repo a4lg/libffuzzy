@@ -32,3 +32,8 @@ stamp-h1
 tmp*
 
 libffuzzy-*
+
+/Doxyfile
+/html/
+/latex/
+/doc/

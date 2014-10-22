@@ -14,4 +14,7 @@ EXTRA_DIST = \
 	str_edit_dist.h \
 	str_hash_rolling.h \
 	util.h \
-	.gitignore .gitattributes ext/.gitignore m4/.gitignore
+	.gitignore .gitattributes ext/.gitignore m4/.gitignore \
+	Doxyfile.example \
+	examples/internal/has_common_substring.c \
+	examples/internal/edit_distn.c

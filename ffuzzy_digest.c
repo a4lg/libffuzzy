@@ -23,6 +23,13 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+
+/**
+	\internal
+	\file  ffuzzy_digest.c
+	\brief Digest utility for fuzzy hashes
+**/
+
 #include "ffuzzy_config.h"
 
 #include <stdbool.h>
@@ -32,6 +39,7 @@
 #include "ffuzzy.h"
 #include "ffuzzy_blocksize.h"
 
+
 inline bool ffuzzy_digest_is_valid_lengths(const ffuzzy_digest *digest)
 {
 	return
@@ -40,6 +48,14 @@ inline bool ffuzzy_digest_is_valid_lengths(const ffuzzy_digest *digest)
 		(digest->len1 + digest->len2) <= FFUZZY_SPAMSUM_LENGTH * 2;
 }
 
+
+/**
+	\internal
+	\fn     bool is_base64(char)
+	\brief  Determine if given character is a base64 character
+	\param  c  The character to determine.
+	\return true if c is one of the base64 characters; false otherwise.
+**/
 static inline bool is_base64(char c)
 {
 	switch (c)
@@ -61,6 +77,7 @@ static inline bool is_base64(char c)
 	}
 }
 
+
 bool ffuzzy_digest_is_valid_buffer(const ffuzzy_digest *digest)
 {
 	const char *buf = digest->digest;
@@ -72,6 +89,7 @@ bool ffuzzy_digest_is_valid_buffer(const ffuzzy_digest *digest)
 			return false;
 	return true;
 }
+
 
 bool ffuzzy_digest_is_natural_buffer(const ffuzzy_digest *digest)
 {
@@ -91,6 +109,7 @@ bool ffuzzy_digest_is_natural_buffer(const ffuzzy_digest *digest)
 	return true;
 }
 
+
 bool ffuzzy_digest_is_valid(const ffuzzy_digest *digest)
 {
 	return
@@ -99,6 +118,7 @@ bool ffuzzy_digest_is_valid(const ffuzzy_digest *digest)
 		ffuzzy_digest_is_valid_buffer(digest);
 }
 
+
 bool ffuzzy_digest_is_natural(const ffuzzy_digest *digest)
 {
 	return
@@ -106,6 +126,7 @@ bool ffuzzy_digest_is_natural(const ffuzzy_digest *digest)
 		ffuzzy_digest_is_valid_lengths(digest) &&
 		ffuzzy_digest_is_natural_buffer(digest);
 }
+
 
 int ffuzzy_digestcmp(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 {
@@ -123,6 +144,7 @@ int ffuzzy_digestcmp(const ffuzzy_digest *d1, const ffuzzy_digest *d2)
 		return -1;
 	return memcmp(d1->digest, d2->digest, d1->len1 + d1->len2);
 }
+
 
 bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 {

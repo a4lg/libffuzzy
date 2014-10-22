@@ -23,7 +23,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+
+/**
+	\internal
+	\file  ffuzzy_blocksize.c
+	\brief Block size utility for fuzzy hashes
+**/
+
 #include "ffuzzy_config.h"
+
 
 #include <stdbool.h>
 #include <limits.h>

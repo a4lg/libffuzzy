@@ -24,7 +24,28 @@
 #ifndef FFUZZY_UTIL_H
 #define FFUZZY_UTIL_H
 
+/**
+	\internal
+	\file  util.h
+	\brief Miscellaneous Utilities
+**/
+
+/**
+	\internal
+	\brief  Take minimum value
+	\param  a  Value 1
+	\param  b  Value 2
+	\return Minimum value of two
+**/
 #define MIN(a,b) ((a)<(b)?(a):(b))
+
+/**
+	\internal
+	\brief  Take maximum value
+	\param  a  Value 1
+	\param  b  Value 2
+	\return Maximum value of two
+**/
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #endif

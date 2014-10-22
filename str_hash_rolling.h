@@ -35,13 +35,42 @@
 #ifndef FFUZZY_STR_HASH_ROLLING_H
 #define FFUZZY_STR_HASH_ROLLING_H
 
+/**
+	\internal
+	\file  str_hash_rolling.h
+	\brief Rolling hash implementation
+**/
+
 #include "ffuzzy_config.h"
 
 #include <stdint.h>
 #include <string.h>
 
+/** \internal \brief The window size for rolling hash **/
 #define ROLLING_WINDOW 7
 
+
+/**
+	\internal
+	\struct roll_state
+	\brief  State for rolling hash
+
+	\internal
+	\var   roll_state::h1
+	\brief The sum of characters in the window.
+	\internal
+	\var   roll_state::h2
+	\brief The sum of characters in the window (weighted by its state).
+	\internal
+	\var   roll_state::h3
+	\brief Shift and XOR-based hash.
+	\internal
+	\var   roll_state::n
+	\brief Next index to insert.
+	\internal
+	\var   roll_state::window
+	\brief Inserted haracters.
+**/
 typedef struct
 {
 	uint_least32_t h1, h2, h3;
@@ -49,11 +78,26 @@ typedef struct
 	unsigned char window[ROLLING_WINDOW];
 } roll_state;
 
+
+/**
+	\internal
+	\fn     void roll_init(roll_state*)
+	\brief  Initialize rolling hash state
+	\param  [out] self  The pointer to the rolling hash state to initialize.
+**/
 static inline void roll_init(roll_state *self)
 {
 	memset(self, 0, sizeof(roll_state));
 }
 
+
+/**
+	\internal
+	\fn     void roll_hash(roll_state*, unsigned char)
+	\brief  Insert a character to the rolling hash
+	\param  [in,out] self  The pointer to the rolling hash state.
+	\param           c     The character to insert.
+**/
 static inline void roll_hash(roll_state *self, unsigned char c)
 {
 	self->h2 = self->h2 - self->h1 + ROLLING_WINDOW * (uint_least32_t)c;
@@ -66,6 +110,14 @@ static inline void roll_hash(roll_state *self, unsigned char c)
 		self->n = 0;
 }
 
+
+/**
+	\internal
+	\fn     uint_least32_t roll_sum(const roll_state*)
+	\brief  Extract rolling hash from current state
+	\param  [in] self  The pointer to the rolling hash state.
+	\return A 32-bit rolling hash value.
+**/
 static inline uint_least32_t roll_sum(const roll_state *self)
 {
 	return (self->h1 + self->h2 + self->h3) & UINT32_C(0xffffffff);
