@@ -121,7 +121,6 @@ int ffuzzy_udigestcmp_blocksize_n(const ffuzzy_udigest *d1, const ffuzzy_udigest
 bool ffuzzy_pretty_udigest(char *buf, size_t buflen, const ffuzzy_udigest *udigest)
 {
 	assert(fuzzy_udigest_is_valid_lengths(udigest));
-	memset(buf, '*', buflen);
 	// pretty hash contains two colons and trailing '\0'
 	if (buflen < 3)
 		return false;
