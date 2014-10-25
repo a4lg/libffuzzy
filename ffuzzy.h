@@ -158,6 +158,55 @@ int ffuzzy_compare(const char *str1, const char *str2);
 
 
 /**
+	\name Optimized / Specialized Comparison
+	\{
+**/
+
+/**
+	\fn     int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
+	\brief  Compare two fuzzy hashes assuming two block sizes of given hashes are "near"
+	\details
+		In this context, "near" means two block sizes are equal or
+		one of the block size is twice as other.
+
+		This function assumes two block sizes are "near"
+		(ffuzzy_blocksize_is_near on two block sizes returns true) and
+		make the computation slightly faster.
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
+	\return [0,100] values represent similarity score or negative values on failure.
+**/
+int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+
+/**
+	\fn     int ffuzzy_compare_digest_near_eq(const ffuzzy_digest*, const ffuzzy_digest*)
+	\brief  Compare two fuzzy hashes assuming two block sizes are same
+	\details
+		This function assumes two block sizes are same.
+	\param  [in] d1  Valid digest 1 (with same block size as d2)
+	\param  [in] d2  Valid digest 2 (with same block size as d1)
+	\return [0,100] values represent similarity score or negative values on failure.
+	\see    int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
+**/
+int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+
+/**
+	\fn     int ffuzzy_compare_digest_near_lt(const ffuzzy_digest*, const ffuzzy_digest*)
+	\brief  Compare two fuzzy hashes assuming second block size is double as first one
+	\details
+		This function assumes second block size is double as first one.
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2 (with double block size as d1)
+	\return [0,100] values represent similarity score or negative values on failure.
+	\see    int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
+**/
+int ffuzzy_compare_digest_near_lt(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
+
+/** \} **/
+
+
+
+/**
 	\name Block Size Utilities
 	\{
 **/
@@ -368,55 +417,6 @@ int ffuzzy_digestcmp_blocksize_n(const ffuzzy_digest *d1, const ffuzzy_digest *d
 	\return true if succeeds; false otherwise.
 **/
 bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest);
-
-/** \} **/
-
-
-
-/**
-	\name Optimized / Specialized Comparison
-	\{
-**/
-
-/**
-	\fn     int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
-	\brief  Compare two fuzzy hashes assuming two block sizes of given hashes are "near"
-	\details
-		In this context, "near" means two block sizes are equal or
-		one of the block size is twice as other.
-
-		This function assumes two block sizes are "near"
-		(ffuzzy_blocksize_is_near on two block sizes returns true) and
-		make the computation slightly faster.
-	\param  [in] d1  Valid digest 1
-	\param  [in] d2  Valid digest 2
-	\return [0,100] values represent similarity score or negative values on failure.
-**/
-int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
-
-/**
-	\fn     int ffuzzy_compare_digest_near_eq(const ffuzzy_digest*, const ffuzzy_digest*)
-	\brief  Compare two fuzzy hashes assuming two block sizes are same
-	\details
-		This function assumes two block sizes are same.
-	\param  [in] d1  Valid digest 1 (with same block size as d2)
-	\param  [in] d2  Valid digest 2 (with same block size as d1)
-	\return [0,100] values represent similarity score or negative values on failure.
-	\see    int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
-**/
-int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
-
-/**
-	\fn     int ffuzzy_compare_digest_near_lt(const ffuzzy_digest*, const ffuzzy_digest*)
-	\brief  Compare two fuzzy hashes assuming second block size is double as first one
-	\details
-		This function assumes second block size is double as first one.
-	\param  [in] d1  Valid digest 1
-	\param  [in] d2  Valid digest 2 (with double block size as d1)
-	\return [0,100] values represent similarity score or negative values on failure.
-	\see    int ffuzzy_compare_digest_near(const ffuzzy_digest*, const ffuzzy_digest*)
-**/
-int ffuzzy_compare_digest_near_lt(const ffuzzy_digest *d1, const ffuzzy_digest *d2);
 
 /** \} **/
 
