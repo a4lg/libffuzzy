@@ -129,4 +129,49 @@ static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, con
 	return true;
 }
 
+
+/**
+	\internal
+	\fn     bool ffuzzy_read_udigest_after_blocksize(ffuzzy_udigest*, const char*)
+	\brief  Read remaining unnormalized digest parts (except block size) from the string
+	\param  [out] udigest  The pointer to the buffer to store valid unnormalized digest after parsing.
+	\param  [in]  s        The pointer to the first non-numerical part of a ssdeep digest.
+	\return true if succeeds; false otherwise.
+	\see    bool ffuzzy_read_digests_blocksize(unsigned long*, char**, const char*)
+**/
+static inline bool ffuzzy_read_udigest_after_blocksize(ffuzzy_udigest *udigest, const char *s)
+{
+	// ':' must follow after the number (which is block_size)
+	if (*s != ':')
+		return false;
+	// read first block of ssdeep hash
+	// (WITHOUT eliminating sequences)
+	udigest->len1 = 0;
+	char *o = udigest->digest;
+	while (true)
+	{
+		char c = *++s;
+		if (!c)
+			return false;
+		if (c == ':')
+			break;
+		if (udigest->len1++ == FFUZZY_SPAMSUM_LENGTH)
+			return false;
+		*o++ = c;
+	}
+	// read second block of ssdeep hash
+	// (WITHOUT eliminating sequences)
+	udigest->len2 = 0;
+	while (true)
+	{
+		char c = *++s;
+		if (!c || c == ',')
+			break;
+		if (udigest->len2++ == FFUZZY_SPAMSUM_LENGTH)
+			return false;
+		*o++ = c;
+	}
+	return true;
+}
+
 #endif

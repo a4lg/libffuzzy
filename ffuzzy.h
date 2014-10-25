@@ -423,6 +423,186 @@ int ffuzzy_compare_digest_near_lt(const ffuzzy_digest *d1, const ffuzzy_digest *
 
 
 /**
+	\name Unnormalized Digests
+	\{
+**/
+
+/**
+
+	\struct ffuzzy_udigest
+	\brief  The type to store unnormalized ssdeep digest after parsing.
+	\details
+		Unlike ffuzzy_digest type, this type (actually, identical to
+		ffuzzy_digest) may include sequences of four or more identical
+		characters. fuzzy_digest function (by default) does not eliminate
+		such sequences and this type allows preserving such sequences.
+
+		This type is easily convertible to ffuzzy_digest.
+
+	\var   ffuzzy_udigest::len1
+	\brief Digest length for first block of the digest.
+	\see   ffuzzy_digest::len1
+
+	\var   ffuzzy_udigest::len2
+	\brief Digest length for second block of the digest.
+	\see   ffuzzy_digest::len2
+
+	\var   ffuzzy_udigest::block_size
+	\brief Block size of the ssdeep digest.
+	\see   ffuzzy_digest::block_size
+
+	\var   ffuzzy_udigest::digest
+	\brief Digest buffer for both blocks of the unnormalized digest.
+	\details
+		This buffer is very similar to ffuzzy_digest::digest but
+		allows long sequences of identical characters.
+	\see   ffuzzy_digest::digest
+
+**/
+typedef struct
+{
+	size_t len1, len2;
+	unsigned long block_size;
+	char digest[FFUZZY_SPAMSUM_LENGTH * 2];
+} ffuzzy_udigest;
+
+
+/**
+	\fn     bool ffuzzy_read_udigest(ffuzzy_udigest*, const char*)
+	\brief  Read unnormalized ssdeep digest from the string
+	\details
+		This function always sets valid and unnormalized digest if succeeds.
+	\param  [out] udigest  The pointer to the buffer to store valid unnormalized digest after parsing.
+	\param  [in]  s        The string which contains a ssdeep digest.
+	\return true if succeeds; false otherwise.
+	\see    ffuzzy_udigest
+**/
+bool ffuzzy_read_udigest(ffuzzy_udigest *udigest, const char *s);
+
+/**
+	\fn     bool ffuzzy_udigest_is_valid_lengths(const ffuzzy_udigest*)
+	\brief  Determines whether block lengths of given digest are valid
+	\param  [in] udigest  Unnormalized digest (which may not be valid)
+	\return true if values of ffuzzy_udigest::len1 and ffuzzy_udigest::len2 are valid.
+**/
+bool ffuzzy_udigest_is_valid_lengths(const ffuzzy_udigest *udigest);
+
+/**
+	\fn     bool ffuzzy_udigest_is_natural_buffer(const ffuzzy_udigest*)
+	\brief  Determines whether digest blocks are "natural"
+	\details
+		This function determines whether valid range of ffuzzy_udigest::digest
+		values consist of base64 characters (in other words, "natural").
+
+		This function needs valid digest block lengths.
+		If digest block lengths are not guaranteed to be valid,
+		use ffuzzy_udigest_is_valid_lengths first.
+
+		You will need this function ONLY if you need to verify
+		whether given digest is truly "natural".
+	\param  [in] udigest  Unnormalized digest (which may not be natural but block lengths are valid)
+	\return true if the digest blocks are "natural"; false otherwise.
+**/
+bool ffuzzy_udigest_is_natural_buffer(const ffuzzy_udigest *udigest);
+
+/**
+	\fn     bool ffuzzy_udigest_is_valid(const ffuzzy_udigest*)
+	\brief  Determines whether given digest is valid
+	\param  [in] udigest  Unnormalized digest (which may not be valid)
+	\return true if the digest is valid; false otherwise.
+**/
+bool ffuzzy_udigest_is_valid(const ffuzzy_udigest *udigest);
+
+/**
+	\fn     bool ffuzzy_udigest_is_natural(const ffuzzy_udigest*)
+	\brief  Determines whether given digest is valid and "natural"
+	\param  [in] udigest  Unnormalized digest (which may not be valid or natural)
+	\return true if the digest is valid and "natural"; false otherwise.
+**/
+bool ffuzzy_udigest_is_natural(const ffuzzy_udigest *udigest);
+
+/**
+	\fn     int ffuzzy_udigestcmp(const ffuzzy_udigest*, const ffuzzy_udigest*)
+	\brief  Compare two ffuzzy_udigest values
+	\details
+		This comparison has priorities.
+
+		1. Compare block sizes.
+		2. Compare block lengths of the first block.
+		3. Compare block lengths of the second block.
+		4. Compare block buffer contents (first and second).
+
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
+	\return
+		Positive value if d1 < d2, negativa value if d2 > d1
+		and 0 if d1 is equal to d2.
+**/
+int ffuzzy_udigestcmp(const ffuzzy_udigest *d1, const ffuzzy_udigest *d2);
+
+/**
+	\fn     int ffuzzy_udigestcmp_blocksize(const ffuzzy_udigest*, const ffuzzy_udigest*)
+	\brief  Compare two ffuzzy_udigest values by block sizes
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
+	\return
+		Positive value if d1 < d2, negativa value if d2 > d1
+		and 0 if block size of d1 is equal to d2.
+	\see    int ffuzzy_udigestcmp(const ffuzzy_udigest*, const ffuzzy_udigest*)
+**/
+int ffuzzy_udigestcmp_blocksize(const ffuzzy_udigest *d1, const ffuzzy_udigest *d2);
+
+/**
+	\fn     int ffuzzy_udigestcmp_blocksize_n(const ffuzzy_udigest*, const ffuzzy_udigest*)
+	\brief  Compare two ffuzzy_udigest values by whether block sizes are "natural" and block size values
+	\details
+		This comparison has priorities.
+
+		1. Compare whether block sizes are "natural" (for ffuzzy_blocksize_is_natural return value, true comes first)
+		2. Compare block sizes.
+
+	\param  [in] d1  Valid digest 1
+	\param  [in] d2  Valid digest 2
+	\return
+		Positive value if d1 < d2, negativa value if d2 > d1
+		and 0 if block size of d1 is equal to d2.
+	\see    bool ffuzzy_blocksize_is_natural(unsigned long)
+	\see    int ffuzzy_udigestcmp(const ffuzzy_udigest*, const ffuzzy_udigest*)
+**/
+int ffuzzy_udigestcmp_blocksize_n(const ffuzzy_udigest *d1, const ffuzzy_udigest *d2);
+
+/**
+	\fn     bool ffuzzy_pretty_udigest(char*, size_t, const ffuzzy_udigest*)
+	\brief  Convert ffuzzy_udigest to the string
+	\param  [out] buf      Buffer to store string
+	\param        buflen   Size of buf
+	\param  [in]  udigest  A valid digest to convert
+	\return true if succeeds; false otherwise.
+**/
+bool ffuzzy_pretty_udigest(char *buf, size_t buflen, const ffuzzy_udigest *udigest);
+
+
+/**
+	\fn     void ffuzzy_convert_digest_to_udigest(ffuzzy_udigest*, const ffuzzy_digest*)
+	\brief  Convert ffuzzy_digest to ffuzzy_udigest
+	\param  [out] udigest  The pointer to buffer to the unnormalized digest
+	\param  [in]  digest   The pointer to the valid digest
+**/
+void ffuzzy_convert_digest_to_udigest(ffuzzy_udigest *udigest, const ffuzzy_digest *digest);
+
+/**
+	\fn     void ffuzzy_convert_udigest_to_digest(ffuzzy_digest*, const ffuzzy_udigest*)
+	\brief  Convert ffuzzy_udigest to ffuzzy_digest
+	\param  [out] digest   The pointer to buffer to the normalized digest
+	\param  [in]  udigest  The pointer to the valid and unnormalized digest
+**/
+void ffuzzy_convert_udigest_to_digest(ffuzzy_digest *digest, const ffuzzy_udigest *udigest);
+
+/** \} **/
+
+
+
+/**
 	\name Internal Comparison Utilities
 	\{
 **/

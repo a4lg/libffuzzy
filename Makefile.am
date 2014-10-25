@@ -5,13 +5,17 @@ libffuzzy_la_SOURCES = \
 	ffuzzy_compare.c \
 	ffuzzy_blocksize.c \
 	ffuzzy_digest.c \
-	ffuzzy_parse.c
+	ffuzzy_digest_unnorm.c \
+	ffuzzy_digest_conv.c \
+	ffuzzy_parse.c \
+	ffuzzy_parse_unnorm.c
 include_HEADERS = ffuzzy.h
 EXTRA_DIST = \
 	README NEWS \
 	COPYING COPYING.GPLv2 COPYING.Boost \
 	ffuzzy_blocksize.h \
 	ffuzzy_parse.h \
+	str_base64.h \
 	str_common_substr.h \
 	str_edit_dist.h \
 	str_hash_rolling.h \
