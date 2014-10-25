@@ -52,6 +52,7 @@
 
 #include "ffuzzy.h"
 #include "ffuzzy_blocksize.h"
+#include "ffuzzy_parse.h"
 
 #include "str_common_substr.h"
 #include "str_edit_dist.h"
@@ -132,95 +133,6 @@ int ffuzzy_score_strings(
 	if (s1len > FFUZZY_SPAMSUM_LENGTH || s2len > FFUZZY_SPAMSUM_LENGTH)
 		return 0;
 	return ffuzzy_score_strings_unsafe(s1, s1len, s2, s2len, block_size);
-}
-
-
-/**
-	\internal
-	\fn     bool ffuzzy_read_digest_blocksize(ffuzzy_digest*, char**, const char*)
-	\brief  Read block size from the string
-	\param  [out] digest  The pointer to the digest
-	\param  [out] srem    The value pointed by this parameter is set to the first non-numerical character.
-	\param  [in]  s       The string which contains a ssdeep digest.
-	\return true if succeeds; false otherwise.
-**/
-static inline bool ffuzzy_read_digest_blocksize(ffuzzy_digest *digest, char** srem, const char *s)
-{
-	errno = 0;
-	digest->block_size = strtoul(s, srem, 10);
-	// arithmetic overflow occurred
-	if (digest->block_size == ULONG_MAX && errno == ERANGE)
-		return false;
-	// the string does not start with numbers
-	if (*srem == s)
-		return false;
-	// we can't handle invalid block sizes
-	if (!ffuzzy_blocksize_is_valid_(digest->block_size))
-		return false;
-	return true;
-}
-
-
-/**
-	\internal
-	\fn     bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest*, const char*)
-	\brief  Read remaining digest parts (except block size) from the string
-	\param  [out] digest  The pointer to the buffer to store valid digest after parsing.
-	\param  [in]  s       The pointer to the first non-numerical part of a ssdeep digest.
-	\return true if succeeds; false otherwise.
-	\see    ffuzzy_read_digest_blocksize(ffuzzy_digest*, char**, const char*)
-**/
-static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, const char *s)
-{
-	// ':' must follow after the number (which is block_size)
-	if (*s != ':')
-		return false;
-	// read first block of ssdeep hash
-	// (eliminating sequences of 4 or more identical characters)
-	digest->len2 = 0;
-	char *o = digest->digest;
-	while (true)
-	{
-		char c = *++s;
-		if (!c)
-			return false;
-		if (c == ':')
-			break;
-		if (digest->len2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
-		{
-			if (digest->len2 == FFUZZY_SPAMSUM_LENGTH)
-				return false;
-			digest->len2++;
-			*o++ = c;
-		}
-	}
-	// read second block of ssdeep hash
-	// (eliminating sequences of 4 or more identical characters)
-	digest->len1 = digest->len2;
-	while (true)
-	{
-		char c = *++s;
-		if (!c || c == ',')
-			break;
-		if (digest->len2 < 3 || c != s[-1] || c != s[-2] || c != s[-3])
-		{
-			if (digest->len2 == digest->len1 + FFUZZY_SPAMSUM_LENGTH)
-				return false;
-			digest->len2++;
-			*o++ = c;
-		}
-	}
-	digest->len2 -= digest->len1;
-	return true;
-}
-
-
-bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s)
-{
-	char *p;
-	if (!ffuzzy_read_digest_blocksize(digest, &p, s))
-		return false;
-	return ffuzzy_read_digest_after_blocksize(digest, p);
 }
 
 
