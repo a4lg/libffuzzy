@@ -1,7 +1,7 @@
 DOXYFILE_ENCODING      = UTF-8
 
 PROJECT_NAME           = "libffuzzy"
-PROJECT_NUMBER         = "2.1"
+PROJECT_NUMBER         = "2.1.1"
 PROJECT_BRIEF          = "Fast ssdeep comparison library"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = doc

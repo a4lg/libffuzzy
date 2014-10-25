@@ -2,6 +2,12 @@ libffuzzy : Fast ssdeep comparison library
 ===========================================
 
 
+Version 2.1.1 - 2014-10-25
+---------------------------
+
+*	Removed redundant debug code
+
+
 Version 2.1 - 2014-10-25
 -------------------------
 
