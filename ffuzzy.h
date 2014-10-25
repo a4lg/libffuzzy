@@ -43,7 +43,7 @@
 	a fast ssdeep comparison library.
 
 	\author  Tsukasa OI, li@livegrid.org and original ssdeep authors
-	\version 2.0
+	\version 2.0.1
 
 **/
 

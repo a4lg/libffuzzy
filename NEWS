@@ -2,6 +2,13 @@ libffuzzy : Fast ssdeep comparison library
 ===========================================
 
 
+Version 2.0.1 - 2014-10-25
+---------------------------
+
+*	Changed internal interface for future extension
+*	Fixed buffer overflow vulnerability on ffuzzy_pretty_digest function
+
+
 Version 2.0 - 2014-10-22
 -------------------------
 

@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 lib_LTLIBRARIES = libffuzzy.la
-libffuzzy_la_LDFLAGS = -no-undefined -version-info 3:0:0
+libffuzzy_la_LDFLAGS = -no-undefined -version-info 3:1:0
 libffuzzy_la_SOURCES = \
 	ffuzzy_compare.c \
 	ffuzzy_blocksize.c \
