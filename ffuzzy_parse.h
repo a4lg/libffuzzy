@@ -52,25 +52,25 @@
 
 /**
 	\internal
-	\fn     bool ffuzzy_read_digest_blocksize(ffuzzy_digest*, char**, const char*)
+	\fn     bool ffuzzy_read_digests_blocksize(unsigned long*, char**, const char*)
 	\brief  Read block size from the string
-	\param  [out] digest  The pointer to the digest
-	\param  [out] srem    The value pointed by this parameter is set to the first non-numerical character.
-	\param  [in]  s       The string which contains a ssdeep digest.
+	\param  [out] block_size  The pointer to the block size
+	\param  [out] srem        The value pointed by this parameter is set to the first non-numerical character.
+	\param  [in]  s           The string which contains a ssdeep digest.
 	\return true if succeeds; false otherwise.
 **/
-static inline bool ffuzzy_read_digest_blocksize(ffuzzy_digest *digest, char** srem, const char *s)
+static inline bool ffuzzy_read_digests_blocksize(unsigned long *block_size, char** srem, const char *s)
 {
 	errno = 0;
-	digest->block_size = strtoul(s, srem, 10);
+	*block_size = strtoul(s, srem, 10);
 	// arithmetic overflow occurred
-	if (digest->block_size == ULONG_MAX && errno == ERANGE)
+	if (*block_size == ULONG_MAX && errno == ERANGE)
 		return false;
 	// the string does not start with numbers
 	if (*srem == s)
 		return false;
 	// we can't handle invalid block sizes
-	if (!ffuzzy_blocksize_is_valid_(digest->block_size))
+	if (!ffuzzy_blocksize_is_valid_(*block_size))
 		return false;
 	return true;
 }
@@ -83,7 +83,7 @@ static inline bool ffuzzy_read_digest_blocksize(ffuzzy_digest *digest, char** sr
 	\param  [out] digest  The pointer to the buffer to store valid digest after parsing.
 	\param  [in]  s       The pointer to the first non-numerical part of a ssdeep digest.
 	\return true if succeeds; false otherwise.
-	\see    bool ffuzzy_read_digest_blocksize(ffuzzy_digest*, char**, const char*)
+	\see    bool ffuzzy_read_digests_blocksize(unsigned long*, char**, const char*)
 **/
 static inline bool ffuzzy_read_digest_after_blocksize(ffuzzy_digest *digest, const char *s)
 {

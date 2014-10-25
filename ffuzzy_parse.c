@@ -46,7 +46,7 @@
 bool ffuzzy_read_digest(ffuzzy_digest *digest, const char *s)
 {
 	char *p;
-	if (!ffuzzy_read_digest_blocksize(digest, &p, s))
+	if (!ffuzzy_read_digests_blocksize(&(digest->block_size), &p, s))
 		return false;
 	return ffuzzy_read_digest_after_blocksize(digest, p);
 }

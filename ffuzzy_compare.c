@@ -240,7 +240,7 @@ int ffuzzy_compare(const char *str1, const char *str2)
 	ffuzzy_digest d1, d2;
 	char *p1, *p2;
 	// read blocksize part first
-	if (!ffuzzy_read_digest_blocksize(&d1, &p1, str1) || !ffuzzy_read_digest_blocksize(&d2, &p2, str2))
+	if (!ffuzzy_read_digests_blocksize(&(d1.block_size), &p1, str1) || !ffuzzy_read_digests_blocksize(&(d2.block_size), &p2, str2))
 		return -1;
 	// don't compare if the blocksizes are not close.
 	if (!ffuzzy_blocksize_is_near_(d1.block_size, d2.block_size))
