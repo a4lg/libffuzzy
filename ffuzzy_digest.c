@@ -188,13 +188,13 @@ bool ffuzzy_pretty_digest(char *buf, size_t buflen, const ffuzzy_digest *digest)
 			return false;
 		if ((size_t)bsret >= bslen)
 			return false;
-		buf += bslen;
+		buf += bsret;
 	}
 	// write blocks
 	buf[0] = ':';
 	memcpy(buf + 1, digest->digest, digest->len1);
 	buf[digest->len1 + 1] = ':';
-	memcpy(buf + digest->len1 + 1, digest->digest + digest->len1, digest->len2);
+	memcpy(buf + digest->len1 + 2, digest->digest + digest->len1, digest->len2);
 	buf[digest->len1 + digest->len2 + 2] = '\0';
 	return true;
 }
