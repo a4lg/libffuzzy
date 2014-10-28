@@ -74,10 +74,9 @@
 static inline int ffuzzy_score_cap_1_(int minslen, unsigned long block_size)
 {
 	assert(minslen > 0 && minslen < FFUZZY_SPAMSUM_LENGTH);
-	unsigned long block_scale = block_size / FFUZZY_MIN_BLOCKSIZE;
-	if (block_scale >= 100)
+	if (block_size >= FFUZZY_MIN_BLOCKSIZE * 100)
 		return 100;
-	return (int)block_scale * minslen;
+	return (int)block_size / FFUZZY_MIN_BLOCKSIZE * minslen;
 }
 
 
@@ -123,13 +122,12 @@ static inline int ffuzzy_score_strings_unsafe(
 	int score = edit_distn_norm(s1, s1len, s2, s2len) * FFUZZY_SPAMSUM_LENGTH / ((int)s1len + (int)s2len);
 	score = 100 - (100 * score) / FFUZZY_SPAMSUM_LENGTH;
 	// when the blocksize is small we don't want to exaggerate the match size
-	unsigned long block_scale = block_size / FFUZZY_MIN_BLOCKSIZE;
-	if (block_scale >= 100)
+	if (block_size >= FFUZZY_MIN_BLOCKSIZE * 100)
 	{
 		// don't cap first (to avoid arithmetic overflow)
 		return score;
 	}
-	int score_cap = (int)block_scale * MIN((int)s1len, (int)s2len);
+	int score_cap = (int)block_size / FFUZZY_MIN_BLOCKSIZE * MIN((int)s1len, (int)s2len);
 	return MIN(score, score_cap);
 }
 
