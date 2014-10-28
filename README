@@ -13,6 +13,14 @@ issues in ssdeep. During this re-implementation, the author found
 several issues which may affect robustness and portability of ssdeep.
 
 
+Installation
+-------------
+
+Run bootstrap.sh or run `autoreconf -i` first.
+Then you can install the program by ./configure, make and
+then make install.
+
+
 Functions
 ----------
 

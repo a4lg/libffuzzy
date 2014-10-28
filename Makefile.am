@@ -13,6 +13,7 @@ include_HEADERS = ffuzzy.h
 EXTRA_DIST = \
 	README NEWS \
 	COPYING COPYING.GPLv2 COPYING.Boost \
+	bootstrap.sh \
 	ffuzzy_blocksize.h \
 	ffuzzy_parse.h \
 	str_base64.h \
