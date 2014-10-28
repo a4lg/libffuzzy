@@ -5,8 +5,8 @@ libffuzzy is a fuzzy hash comparison library compatible with
 ssdeep (<http://ssdeep.sourceforge.net/>) version 2.10.
 
 This library is designed to be fast and thread-safe. It does not even
-allocate memory dynamically during the process (which may increase
-performance on parallel computation).
+allocate memory at run time (which may increase performance
+on parallel computation).
 
 The another purpose to write this library is to find implementation
 issues in ssdeep. During this re-implementation, the author found

@@ -2,6 +2,14 @@ libffuzzy : Fast ssdeep comparison library
 ===========================================
 
 
+Version 2.1.2 - 2014-10-28
+---------------------------
+
+*	libffuzzy now accepts all unsigned long values as block sizes
+*	Optimized block size capping
+*	Fixed implementation where is different from documentation
+
+
 Version 2.1.1 - 2014-10-25
 ---------------------------
 
