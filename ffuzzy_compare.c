@@ -66,9 +66,14 @@
 #endif
 
 
-inline int ffuzzy_score_cap_1(int minslen, unsigned long block_size)
+/**
+	\internal
+	\fn   int ffuzzy_score_cap_1_(int, unsigned long)
+	\see  int ffuzzy_score_cap_1(int, unsigned long)
+**/
+static inline int ffuzzy_score_cap_1_(int minslen, unsigned long block_size)
 {
-	assert(minslen >= 0 && minslen < FFUZZY_SPAMSUM_LENGTH);
+	assert(minslen > 0 && minslen < FFUZZY_SPAMSUM_LENGTH);
 	unsigned long block_scale = block_size / FFUZZY_MIN_BLOCKSIZE;
 	if (block_scale >= 100)
 		return 100;
@@ -76,10 +81,16 @@ inline int ffuzzy_score_cap_1(int minslen, unsigned long block_size)
 }
 
 
-inline int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size)
+inline int ffuzzy_score_cap_1(int minslen, unsigned long block_size)
 {
-	assert(s1len >= 0 && s1len < FFUZZY_SPAMSUM_LENGTH);
-	assert(s2len >= 0 && s2len < FFUZZY_SPAMSUM_LENGTH);
+	if (minslen == 0)
+		return 0;
+	return ffuzzy_score_cap_1_(minslen, block_size);
+}
+
+
+int ffuzzy_score_cap(int s1len, int s2len, unsigned long block_size)
+{
 	return ffuzzy_score_cap_1(MIN(s1len, s2len), block_size);
 }
 
@@ -155,7 +166,7 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 		{
 			if (d1->block_size > FFUZZY_MIN_BLOCKSIZE * 50)
 				return 100;
-			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
+			score_cap = ffuzzy_score_cap_1_((int)d1->len2, d1->block_size * 2);
 			if (score_cap >= 100)
 				return 100;
 		}
@@ -163,7 +174,7 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 			score_cap = 0;
 		if (d1->len1 >= FFUZZY_MIN_MATCH)
 		{
-			int tmp = ffuzzy_score_cap_1((int)d1->len1, d1->block_size);
+			int tmp = ffuzzy_score_cap_1_((int)d1->len1, d1->block_size);
 			score_cap = MAX(score_cap, tmp);
 		}
 		return MIN(100, score_cap);
@@ -214,7 +225,7 @@ int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *
 		{
 			if (d1->block_size > FFUZZY_MIN_BLOCKSIZE * 50)
 				return 100;
-			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
+			score_cap = ffuzzy_score_cap_1_((int)d1->len2, d1->block_size * 2);
 			if (score_cap >= 100)
 				return 100;
 		}
@@ -222,7 +233,7 @@ int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *
 			score_cap = 0;
 		if (d1->len1 >= FFUZZY_MIN_MATCH)
 		{
-			int tmp = ffuzzy_score_cap_1((int)d1->len1, d1->block_size);
+			int tmp = ffuzzy_score_cap_1_((int)d1->len1, d1->block_size);
 			score_cap = MAX(score_cap, tmp);
 		}
 		return MIN(100, score_cap);
