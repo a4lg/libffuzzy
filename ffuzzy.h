@@ -215,15 +215,8 @@ int ffuzzy_compare_digest_near_lt(const ffuzzy_digest *d1, const ffuzzy_digest *
 	\fn     bool ffuzzy_blocksize_is_valid(unsigned long)
 	\brief  Determines whether given block size is valid to use in libffuzzy
 	\details
-		To prevent arithmetic overflow, not all unsigned long values are valid in libffuzzy.
-		This function determines whether the given block size is valid and
-		safe to use in libffuzzy.
-
-		You will not need to use this function if you use ffuzzy_read_digest function
-		because it always returns valid digest on success.
-
-		Note that this is not the restriction of ssdeep digest,
-		but restriction of the implementation.
+		Use of this function is now deprecated.
+		libffuzzy now accepts all unsigned long values to compare.
 	\param  block_size  Block size (which may not be valid)
 	\return true if the given block size is valid; false otherwise.
 **/

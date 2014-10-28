@@ -153,6 +153,8 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 		int score_cap;
 		if (d1->len2 >= FFUZZY_MIN_MATCH)
 		{
+			if (d1->block_size > FFUZZY_MIN_BLOCKSIZE * 50)
+				return 100;
 			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
 			if (score_cap >= 100)
 				return 100;
@@ -169,16 +171,28 @@ inline int ffuzzy_compare_digest_near(const ffuzzy_digest *d1, const ffuzzy_dige
 	// each signature has a string for two block sizes. We now
 	// choose how to combine the two block sizes. We checked above
 	// that they have at least one block size in common
-	if (d1->block_size == d2->block_size)
+	if (d1->block_size <= (ULONG_MAX / 2))
 	{
-		int score1 = ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
-		int score2 = ffuzzy_score_strings_unsafe(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
-		return MAX(score1, score2);
+		if (d1->block_size == d2->block_size)
+		{
+			int score1 = ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
+			int score2 = ffuzzy_score_strings_unsafe(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
+			return MAX(score1, score2);
+		}
+		else if (d1->block_size * 2 == d2->block_size)
+			return ffuzzy_score_strings_unsafe(d1->digest + d1->len1, d1->len2, d2->digest, d2->len1, d2->block_size);
+		else
+			return ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest + d2->len1, d2->len2, d1->block_size);
 	}
-	else if (d1->block_size * 2 == d2->block_size)
-		return ffuzzy_score_strings_unsafe(d1->digest + d1->len1, d1->len2, d2->digest, d2->len1, d2->block_size);
 	else
-		return ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest + d2->len1, d2->len2, d1->block_size);
+	{
+		if (d1->block_size == d2->block_size) // second digest block is empty or invalid
+			return ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
+		else if (!(d1->block_size & 1ul) && (d1->block_size / 2 == d2->block_size))
+			return ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest + d2->len1, d2->len2, d1->block_size);
+		else
+			return 0;
+	}
 }
 
 
@@ -198,6 +212,8 @@ int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *
 		int score_cap;
 		if (d1->len2 >= FFUZZY_MIN_MATCH)
 		{
+			if (d1->block_size > FFUZZY_MIN_BLOCKSIZE * 50)
+				return 100;
 			score_cap = ffuzzy_score_cap_1((int)d1->len2, d1->block_size * 2);
 			if (score_cap >= 100)
 				return 100;
@@ -211,9 +227,17 @@ int ffuzzy_compare_digest_near_eq(const ffuzzy_digest *d1, const ffuzzy_digest *
 		}
 		return MIN(100, score_cap);
 	}
-	int score1 = ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
-	int score2 = ffuzzy_score_strings_unsafe(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
-	return MAX(score1, score2);
+	if (d1->block_size <= (ULONG_MAX / 2))
+	{
+		int score1 = ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
+		int score2 = ffuzzy_score_strings_unsafe(d1->digest+d1->len1, d1->len2, d2->digest+d2->len1, d2->len2, d1->block_size * 2);
+		return MAX(score1, score2);
+	}
+	else
+	{
+		// second digest block is empty or invalid
+		return ffuzzy_score_strings_unsafe(d1->digest, d1->len1, d2->digest, d2->len1, d1->block_size);
+	}
 }
 
 
@@ -221,6 +245,7 @@ int ffuzzy_compare_digest_near_lt(const ffuzzy_digest *d1, const ffuzzy_digest *
 {
 	assert(ffuzzy_digest_is_valid(d1));
 	assert(ffuzzy_digest_is_valid(d2));
+	assert(d1->block_size <= (ULONG_MAX / 2));
 	assert(d1->block_size * 2 == d2->block_size);
 	return ffuzzy_score_strings_unsafe(d1->digest + d1->len1, d1->len2, d2->digest, d2->len1, d2->block_size);
 }

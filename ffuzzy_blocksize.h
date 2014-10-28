@@ -42,24 +42,12 @@
 
 /**
 	\internal
-	\fn   bool ffuzzy_blocksize_is_valid_(unsigned long)
-	\see  bool ffuzzy_blocksize_is_valid(unsigned long)
-**/
-static inline bool ffuzzy_blocksize_is_valid_(unsigned long block_size)
-{
-	return block_size <= (ULONG_MAX / 2);
-}
-
-/**
-	\internal
 	\fn   bool ffuzzy_blocksize_is_natural_(unsigned long)
 	\see  bool ffuzzy_blocksize_is_natural(unsigned long)
 **/
 static inline bool ffuzzy_blocksize_is_natural_(unsigned long block_size)
 {
 	if (block_size < FFUZZY_MIN_BLOCKSIZE)
-		return false;
-	if (!ffuzzy_blocksize_is_valid(block_size))
 		return false;
 	while (block_size != FFUZZY_MIN_BLOCKSIZE && !(block_size & 1ul))
 		block_size >>= 1;
@@ -73,12 +61,11 @@ static inline bool ffuzzy_blocksize_is_natural_(unsigned long block_size)
 **/
 static inline bool ffuzzy_blocksize_is_near_(unsigned long block_size1, unsigned block_size2)
 {
-	assert(ffuzzy_blocksize_is_valid_(block_size1));
-	assert(ffuzzy_blocksize_is_valid_(block_size2));
-	return
-		block_size1     == block_size2 ||
-		block_size1 * 2 == block_size2 ||
-		block_size2 * 2 == block_size1;
+	return (
+		block_size1 == block_size2 ||
+		(block_size1 <= (ULONG_MAX / 2) && block_size1 * 2 == block_size2) ||
+		(!(block_size1 & 1ul) && block_size1 / 2 == block_size2)
+	);
 }
 
 

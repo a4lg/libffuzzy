@@ -69,9 +69,6 @@ static inline bool ffuzzy_read_digests_blocksize(unsigned long *block_size, char
 	// the string does not start with numbers
 	if (*srem == s)
 		return false;
-	// we can't handle invalid block sizes
-	if (!ffuzzy_blocksize_is_valid_(*block_size))
-		return false;
 	return true;
 }
 

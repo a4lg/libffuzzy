@@ -63,9 +63,7 @@ bool ffuzzy_udigest_is_natural_buffer(const ffuzzy_udigest *udigest)
 
 bool ffuzzy_udigest_is_valid(const ffuzzy_udigest *udigest)
 {
-	return
-		ffuzzy_blocksize_is_valid_(udigest->block_size) &&
-		ffuzzy_udigest_is_valid_lengths(udigest);
+	return ffuzzy_udigest_is_valid_lengths(udigest);
 }
 
 

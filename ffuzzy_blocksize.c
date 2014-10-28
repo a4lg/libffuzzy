@@ -42,7 +42,7 @@
 
 bool ffuzzy_blocksize_is_valid(unsigned long block_size)
 {
-	return ffuzzy_blocksize_is_valid_(block_size);
+	return true;
 }
 
 bool ffuzzy_blocksize_is_natural(unsigned long block_size)
@@ -58,5 +58,8 @@ bool ffuzzy_blocksize_is_near(unsigned long block_size1, unsigned long block_siz
 bool ffuzzy_blocksize_is_far_le(unsigned long block_size1, unsigned long block_size2)
 {
 	assert(block_size1 <= block_size2);
-	return block_size1 * 2 < block_size2;
+	if (block_size1 <= (ULONG_MAX / 2))
+		return block_size1 * 2 < block_size2;
+	else
+		return block_size1 != block_size2;
 }
