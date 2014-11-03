@@ -61,7 +61,30 @@
 #define FFUZZY_SPAMSUM_LENGTH 64
 
 /** \brief Minimum block size to start in ssdeep implementation **/
-#define FFUZZY_MIN_BLOCKSIZE 3
+#define FFUZZY_MIN_BLOCKSIZE 3ul
+
+/** \brief Number of digest blocks (block hashes in ssdeep) */
+#define FFUZZY_NUM_BLOCKHASHES 31
+
+/** \brief Maximum block size **/
+#define FFUZZY_MAX_BLOCKSIZE (FFUZZY_MIN_BLOCKSIZE << (FFUZZY_NUM_BLOCKHASHES-1))
+
+/**
+	\brief Maximum size of buffer required for natural pretty printing
+	\details
+		This is the buffer size which is enough to store all
+		fuzzy hashes generated from ssdeep / libfuzzy.
+		This is a sum of following components:
+
+		- Two colons for "separator" token (2)
+		- First digest block (max 64)
+		- Second digest block (max 64)
+		- Block size (maximum block size from libfuzzy is 3221225472 [length of 10])
+
+	\see  bool ffuzzy_pretty_digest(char*, size_t, const ffuzzy_digest*)
+	\see  bool ffuzzy_pretty_udigest(char*, size_t, const ffuzzy_udigest*)
+**/
+#define FFUZZY_PRETTY_LEN 141
 
 /** \brief
 	The minimal match (length of common substring) required

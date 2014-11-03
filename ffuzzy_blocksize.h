@@ -49,6 +49,8 @@ static inline bool ffuzzy_blocksize_is_natural_(unsigned long block_size)
 {
 	if (block_size < FFUZZY_MIN_BLOCKSIZE)
 		return false;
+	if (block_size > FFUZZY_MAX_BLOCKSIZE)
+		return false;
 	while (block_size != FFUZZY_MIN_BLOCKSIZE && !(block_size & 1ul))
 		block_size >>= 1;
 	return block_size == FFUZZY_MIN_BLOCKSIZE;
