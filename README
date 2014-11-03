@@ -16,9 +16,10 @@ several issues which may affect robustness and portability of ssdeep.
 Installation
 -------------
 
-Run bootstrap.sh or run `autoreconf -i` first.
-Then you can install the program by ./configure, make and
-then make install.
+If you don't have `configure` script (e.g. on git work-tree),
+run `./bootstrap.sh` or `autoreconf -i` first.
+Then you can install the program by `./configure`, `make`
+and then `make install`.
 
 
 Functions

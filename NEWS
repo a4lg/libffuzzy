@@ -2,6 +2,12 @@ libffuzzy : Fast ssdeep comparison library
 ===========================================
 
 
+Version 2.1.4 - 2014-11-03
+---------------------------
+
+*	Added block size bounds from the original version of ssdeep
+
+
 Version 2.1.3 - 2014-10-28
 ---------------------------
 
